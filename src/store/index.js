@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 // Plugins
-// import syncStorage from './plugins/syncStorage';
+import syncStorage from './plugins/syncStorage';
 
 // Modules
 import permission from './modules/permission';
@@ -20,7 +20,7 @@ export default new Vuex.Store({
 		roles
 	},
 
-	// plugins: [syncStorage({})],
+	plugins: [syncStorage({})],
 
 	state: {},
 	mutations: {},

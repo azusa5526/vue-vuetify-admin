@@ -1,10 +1,11 @@
 import config from '@/config';
-import user from '@/store/modules/user';
+// import user from '@/store/modules/user';
 import settings from '@/store/modules/settings';
 
 /**
  * Vuex plugin for save and sync 'settings' and 'user' from vuex modules.
  */
+// User sync is manually disabled
 class SyncStorage {
 	constructor(option) {
 		/** init options */
@@ -14,8 +15,8 @@ class SyncStorage {
 		this.user = 'user';
 		this.settings = 'settings';
 
-		this.userMutations = this.getModuleOptions(user, 'mutations');
-		// this.userActions = this.getModuleOptions(user, 'actions');
+		// this.userMutations = this.getModuleOptions(user, 'mutations');
+		// // this.userActions = this.getModuleOptions(user, 'actions');
 		this.settingsMutations = this.getModuleOptions(settings, 'mutations');
 		// this.settingsActions = this.getModuleOptions(settings, 'actions');
 
@@ -37,13 +38,14 @@ class SyncStorage {
 			console.warn(`[vuex.SyncStorage] Application version updated to "${config.version}"`);
 		}
 
-		// init and apply user state from storage
-		if (this.initUserState(store)) {
-			await store.dispatch('permission/GenerateRoutes', { roles: store.getters.roles });
-			console.log('[vuex.SyncStorage] initUserState');
-		} else {
-			console.warn('[vuex.SyncStorage] No user state in "Storage"');
-		}
+		// // init and apply user state from storage
+		// if (this.initUserState(store)) {
+		// 	// await store.dispatch('permission/GenerateRoutes', { roles: store.getters.roles });
+		// 	await store.dispatch('permission/GenerateRoutes', store.getters.roles);
+		// 	console.log('[vuex.SyncStorage] initUserState');
+		// } else {
+		// 	console.warn('[vuex.SyncStorage] No user state in "Storage"');
+		// }
 
 		// init and apply settings state from storage
 		if (this.initSettingsState(store)) {
@@ -53,14 +55,14 @@ class SyncStorage {
 		}
 
 		store.subscribe((mutation, state) => {
-			// console.log('storage subscribe', mutation.type);
-			if (this.userMutations.includes(mutation.type)) {
-				// console.log('storage subscribe user_mutations', mutation, state);
-				this.setToStorage(`${this.prefix}${this.user}`, JSON.stringify(state.user));
-				if (mutation.type === 'SET_TOKEN') {
-					this.setToStorage(`${this.prefix}ttl`, this.getSeconds(this.ttl));
-				}
-			}
+			// // console.log('storage subscribe', mutation.type);
+			// if (this.userMutations.includes(mutation.type)) {
+			// 	// console.log('storage subscribe user_mutations', mutation, state);
+			// 	this.setToStorage(`${this.prefix}${this.user}`, JSON.stringify(state.user));
+			// 	if (mutation.type === 'SET_TOKEN') {
+			// 		this.setToStorage(`${this.prefix}ttl`, this.getSeconds(this.ttl));
+			// 	}
+			// }
 			if (this.settingsMutations.includes(mutation.type)) {
 				// console.log('storage subscribe settings_mutations', mutation, state);
 				this.setToStorage(`${this.prefix}${this.settings}`, JSON.stringify(state.settings));
@@ -137,24 +139,25 @@ class SyncStorage {
 		return false;
 	}
 
-	/**
-	 * Get user info from storage.
-	 */
-	initUserState(store) {
-		const userTTL = parseInt(this.getFromStorage(`${this.prefix}ttl`) || 0, 10);
-		if (userTTL < this.getSeconds()) {
-			console.warn('[vuex.SyncStorage] Session expired');
-			store.commit('SET_USER_INFO', { logout: true });
-			return false;
-		}
+	// /**
+	//  * Get user info from storage.
+	//  */
+	// initUserState(store) {
+	// 	const userTTL = parseInt(this.getFromStorage(`${this.prefix}ttl`) || 0, 10);
+	// 	if (userTTL < this.getSeconds()) {
+	// 		console.warn('[vuex.SyncStorage] Session expired');
+	// 		store.commit('SET_USER_INFO', { logout: true });
+	// 		return false;
+	// 	}
 
-		const userState = this.getFromStorage(`${this.prefix}${this.user}`);
-		if (userState) {
-			store.commit('SET_USER_INFO', JSON.parse(userState));
-			return true;
-		}
-		return false;
-	}
+	// 	const userState = this.getFromStorage(`${this.prefix}${this.user}`);
+	// 	console.log('syncStorage initUserState userState', userState);
+	// 	if (userState) {
+	// 		store.commit('SET_USER_INFO', JSON.parse(userState));
+	// 		return true;
+	// 	}
+	// 	return false;
+	// }
 
 	/**
 	 * Get settings from storage.

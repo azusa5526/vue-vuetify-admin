@@ -40,21 +40,12 @@
 					</v-card-text>
 					<v-card-actions>
 						<localization />
-						<v-btn icon>
-							<v-icon color="blue"> mdi-facebook </v-icon>
-						</v-btn>
-						<v-btn icon>
-							<v-icon color="red"> mdi-google </v-icon>
-						</v-btn>
-						<v-btn icon>
-							<v-icon color="light-blue"> mdi-twitter </v-icon>
-						</v-btn>
 						<v-spacer />
-						<v-btn color="primary" outlined to="/singin">
-							{{ $t('login.singIn') }}
+						<v-btn color="primary" outlined to="/signin">
+							{{ $t('login.signIn') }}
 						</v-btn>
-						<v-btn color="primary" :loading="loading" @click="login">
-							{{ $t('login.singUp') }}
+						<v-btn color="primary" :loading="loading" @click="signUp">
+							{{ $t('login.signUp') }}
 						</v-btn>
 					</v-card-actions>
 				</v-card>
@@ -67,7 +58,7 @@
 import Localization from '../widget/AppLocalization.vue';
 
 export default {
-	name: 'SingUp',
+	name: 'SignUp',
 	components: { Localization },
 	data: () => ({
 		loading: false,
@@ -78,11 +69,11 @@ export default {
 		}
 	}),
 	methods: {
-		login() {
+		signUp() {
 			this.loading = true;
 			setTimeout(() => {
 				this.$router.push('/dashboard');
-			}, 1000);
+			}, 2500);
 		}
 	}
 };

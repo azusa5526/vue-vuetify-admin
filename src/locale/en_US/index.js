@@ -26,8 +26,8 @@ export default {
 	login: {
 		titleIn: 'Sing In Form',
 		titleUn: 'Sing Un Form',
-		singIn: 'Sing in',
-		singUp: 'Sing up',
+		signIn: 'Sing in',
+		signUp: 'Sing up',
 		email: 'Email',
 		password: 'Password',
 		confirm: 'Confirm'

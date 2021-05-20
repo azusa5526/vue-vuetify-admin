@@ -8,7 +8,7 @@ import Layout from '@/views/layout/TheLayout.vue';
 // import nestedRouter from '@/demo/router/nested';
 // import componentsRouter from '@/demo/router/components';
 import authRouter from './modules/auth';
-// import errorsRouter from './modules/errors';
+import errorsRouter from './modules/errors';
 import permissionRouter from './modules/permission';
 
 Vue.use(Router);
@@ -162,7 +162,7 @@ export const asyncRoutes = [
 	// vuetifyRouter,
 	// ...componentsRouter,
 	// nestedRouter,
-	// errorsRouter,
+	errorsRouter,
 	{ path: '*', redirect: '/error/404', hidden: true }
 ];
 

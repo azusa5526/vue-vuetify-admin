@@ -26,8 +26,8 @@ export default {
 	login: {
 		titleIn: '登录',
 		titleUn: '注册',
-		singIn: '登录',
-		singUp: '注册',
+		signIn: '登录',
+		signUp: '注册',
 		email: 'Email',
 		password: '密码',
 		confirm: '确认'

@@ -87,7 +87,7 @@ function hasPermission(roles, permissionRoles) {
 // 				next();
 // 			} else {
 // 				logMsg += '\t[!whiteList]';
-// 				next(`/singin?redirect=${to.path}`);
+// 				next(`/signin?redirect=${to.path}`);
 // 			}
 // 		}
 // 	} catch (err) {
@@ -156,9 +156,9 @@ function hasPermission(roles, permissionRoles) {
 // 				logMsg += '\t[whiteList]';
 // 				next();
 // 			} else {
-// 				console.log('router permission.js redirect singin');
+// 				console.log('router permission.js redirect signin');
 // 				logMsg += '\t[!whiteList]';
-// 				next(`/singin?redirect=${to.path}`);
+// 				next(`/signin?redirect=${to.path}`);
 // 			}
 // 		}
 // 	} catch (err) {
@@ -187,12 +187,12 @@ router.beforeEach(async (to, from, next) => {
 				next({ ...to, replace: true });
 			} catch (error) {
 				console.log('set dynamic routes error', error);
-				console.log('redirect to singin. Clear old Token, CurrentUserId, Router');
+				console.log('redirect to signin. Clear old Token, CurrentUserId, Router');
 				store.commit('SET_USER_INFO', { logout: true });
 				removeToken();
 				removeCurrentUserId();
 				router.resetRouter();
-				next(`/singin?redirect=${to.path}`);
+				next(`/signin?redirect=${to.path}`);
 			}
 		}
 	} else {
@@ -201,8 +201,8 @@ router.beforeEach(async (to, from, next) => {
 			console.log('No token but you are goto the whiteList pages');
 			next();
 		} else {
-			console.log('No token and toPage not in whiteList, redirect to singin page');
-			next(`/singin?redirect=${to.path}`);
+			console.log('No token and toPage not in whiteList, redirect to signin page');
+			next(`/signin?redirect=${to.path}`);
 		}
 	}
 

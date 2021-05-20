@@ -12,6 +12,7 @@ const errorsRouter = {
 		title: 'route.errors',
 		icon: 'mdi-information'
 	},
+	hidden: true,
 	children: [
 		{
 			path: '301',

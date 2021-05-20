@@ -12,7 +12,7 @@
 							{{ info.title }}
 						</h1>
 						<div class="subheading mb-3 text-center">Powered by Vuetify</div>
-						<v-btn class="blue lighten-2 mt-5" dark large to="/singin"> Get Started </v-btn>
+						<v-btn class="blue lighten-2 mt-5" dark large to="/signin"> Get Started </v-btn>
 					</v-row>
 				</v-parallax>
 			</section>
@@ -78,7 +78,7 @@
 					<v-row align="center" justify="center" class="flex-column">
 						<div class="text-h5 white--text mb-3 text-center">Web development has never been easier</div>
 						<em>Kick-start your application today</em>
-						<v-btn class="blue lighten-2 mt-5" dark large to="/singin"> Get Started </v-btn>
+						<v-btn class="blue lighten-2 mt-5" dark large to="/signin"> Get Started </v-btn>
 					</v-row>
 				</v-parallax>
 			</section>

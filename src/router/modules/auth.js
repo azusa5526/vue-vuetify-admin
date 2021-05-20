@@ -2,15 +2,15 @@
 
 const authRouter = [
 	{
-		path: '/singin',
+		path: '/signin',
 		alias: '/login',
-		component: () => import('@/views/auth/SingIn.vue'),
+		component: () => import('@/views/auth/SignIn.vue'),
 		hidden: true
 	},
 	{
-		path: '/singup',
+		path: '/signup',
 		alias: '/registration',
-		component: () => import('@/views/auth/SingUp.vue'),
+		component: () => import('@/views/auth/SignUp.vue'),
 		hidden: true
 	}
 ];

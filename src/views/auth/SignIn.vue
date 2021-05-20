@@ -26,26 +26,13 @@
 								type="password"
 								required
 								autocomplete="current-password"
+								@keyup.enter="login"
 							/>
 						</v-form>
 					</v-card-text>
-					<v-card-text>
-						<v-row class="text-center" dense no-gutters>
-							<v-col cols="12">
-								<v-btn-toggle>
-									<v-btn text color="warning" @click="setUserToLogin(0)">
-										<span>editor</span>
-									</v-btn>
-									<v-btn text color="warning" @click="setUserToLogin(1)">
-										<span>admin</span>
-									</v-btn>
-								</v-btn-toggle>
-							</v-col>
-						</v-row>
-					</v-card-text>
-					<v-card-actions>
+					<v-card-actions class="mt-6">
 						<localization />
-						<v-btn icon>
+						<!-- <v-btn icon>
 							<v-icon color="blue"> mdi-facebook </v-icon>
 						</v-btn>
 						<v-btn icon>
@@ -53,13 +40,13 @@
 						</v-btn>
 						<v-btn icon>
 							<v-icon color="light-blue"> mdi-twitter </v-icon>
-						</v-btn>
+						</v-btn> -->
 						<v-spacer />
-						<v-btn color="primary" outlined to="/singup">
-							{{ $t('login.singUp') }}
+						<v-btn color="primary" outlined to="/signup">
+							{{ $t('login.signUp') }}
 						</v-btn>
 						<v-btn color="primary" :loading="loading" @click="login">
-							{{ $t('login.singIn') }}
+							{{ $t('login.signIn') }}
 						</v-btn>
 					</v-card-actions>
 				</v-card>
@@ -69,36 +56,27 @@
 </template>
 
 <script>
-import { userAdmin, userEditor } from '@/api/mock';
 import Localization from '../widget/AppLocalization.vue';
 
 export default {
-	name: 'SingIn',
+	name: 'SignIn',
 	components: { Localization },
 	data: () => ({
 		loading: false,
 		model: {
 			username: 'admin',
-			email: '',
 			password: '123qwe'
 		}
 	}),
 	methods: {
 		async login() {
+			this.loading = true;
 			await this.$store.dispatch('Login', {
 				username: this.model.username,
 				password: this.model.password
 			});
+			this.loading = false;
 			await this.$router.push(this.$route.query.redirect || '/');
-		},
-		setUserToLogin(id) {
-			if (id) {
-				this.model.username = userAdmin.email;
-				this.model.password = userAdmin.password;
-			} else {
-				this.model.username = userEditor.email;
-				this.model.password = userEditor.password;
-			}
 		}
 	}
 };

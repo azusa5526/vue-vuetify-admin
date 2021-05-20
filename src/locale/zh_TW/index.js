@@ -26,19 +26,19 @@ export default {
 	login: {
 		titleIn: '登入',
 		titleUn: '註冊',
-		singIn: '登入',
-		singUp: '註冊',
+		signIn: '登入',
+		signUp: '註冊',
 		email: 'Email',
 		password: '密碼',
 		confirm: '確認'
 	},
 	errors: {
-		whoops: '哎呀~!',
-		back: '返回!',
-		301: 'Moved Permanently',
-		401: '未獲得權限觀看',
+		whoops: '哎呀 糟糕！',
+		back: '帶我離開這裡',
+		301: '頁面位置已經被移動了',
+		401: '沒有權限觀看',
 		403: '禁止進入',
-		404: '找不到該頁面',
+		404: '找不到頁面',
 		500: '伺服器錯誤'
 	},
 	guide: {
