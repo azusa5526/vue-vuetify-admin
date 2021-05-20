@@ -60,23 +60,23 @@ export const constantRoutes = [
 			}
 		]
 	},
-	// {
-	// 	path: '/',
-	// 	component: Layout,
-	// 	children: [
-	// 		{
-	// 			path: '/documentation',
-	// 			component: () => import('@/views/components/Documentation'),
-	// 			name: 'Documentation',
-	// 			meta: {
-	// 				title: 'route.documentation',
-	// 				icon: 'mdi-text-subject',
-	// 				noCache: true,
-	// 				affix: true
-	// 			}
-	// 		}
-	// 	]
-	// },
+	{
+		path: '/',
+		component: Layout,
+		children: [
+			{
+				path: '/documentation',
+				component: () => import('@/views/components/Documentation'),
+				name: 'Documentation',
+				meta: {
+					title: 'route.documentation',
+					icon: 'mdi-text-subject',
+					noCache: true,
+					affix: true
+				}
+			}
+		]
+	},
 	// {
 	// 	path: '/',
 	// 	component: Layout,
@@ -136,6 +136,20 @@ export const constantRoutes = [
 	...authRouter
 ];
 
+// NavigationDuplicated: "Navigating to current location ("") is not allowed
+// https://blog.csdn.net/weixin_44727491/article/details/105278494
+const originalPush = Router.prototype.push;
+Router.prototype.push = function push(location, onResolve, onReject) {
+	if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject);
+	return originalPush.call(this, location).catch((err) => err);
+};
+
+// Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
+export function resetRouter() {
+	const newRouter = createRouter();
+	router.matcher = newRouter.matcher; // reset router
+}
+
 // export default new Router({
 // 	// mode: 'history', // gh-pages
 // 	scrollBehavior: () => ({ y: 0 }),
@@ -158,13 +172,5 @@ const createRouter = () =>
 		scrollBehavior: () => ({ y: 0 }),
 		routes: constantRoutes
 	});
-
 const router = createRouter();
-
-// Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
-export function resetRouter() {
-	const newRouter = createRouter();
-	router.matcher = newRouter.matcher; // reset router
-}
-
 export default router;

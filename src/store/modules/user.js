@@ -148,15 +148,11 @@ const user = {
 		// },
 
 		LogOut: async ({ commit }) => {
-			try {
-				console.log('[vuex.user] LogOut');
-				await commit('SET_USER_INFO', { logout: true });
-				removeToken();
-				removeCurrentUserId();
-				resetRouter();
-			} catch (err) {
-				console.warn('[vuex.user] LogOut', err);
-			}
+			console.log('[vuex.user] LogOut');
+			await removeToken();
+			await commit('SET_USER_INFO', { logout: true });
+			removeCurrentUserId();
+			resetRouter();
 		}
 
 		// Dynamically modify permissions

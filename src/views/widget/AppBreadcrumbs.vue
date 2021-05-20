@@ -44,8 +44,11 @@ export default {
 			this.levelList = matched.filter((item) => item.meta && item.meta.title && item.meta.breadcrumb !== false);
 		},
 		pathCompile(path) {
+			console.log('AppBreadcrumbs.vue pathCompile path', path);
+			console.log('AppBreadcrumbs.vue pathCompile pathToRegexp', pathToRegexp);
 			const { params } = this.$route;
 			const toPath = pathToRegexp.compile(path);
+			console.log('AppBreadcrumbs.vue pathCompile params', params);
 			return toPath(params);
 		},
 		handleLink(item) {
@@ -58,7 +61,7 @@ export default {
 				console.groupEnd();
 				return;
 			}
-			this.$router.push(this.pathCompile(path));
+			this.$router.push(path);
 			console.groupEnd();
 		}
 	}

@@ -17,8 +17,11 @@
 					</v-list-item-avatar>
 
 					<v-list-item-content>
-						<v-list-item-title>{{ name }}</v-list-item-title>
-						<v-list-item-subtitle>{{ user }}</v-list-item-subtitle>
+						<v-list-item-title class="mb-1">{{ name }}</v-list-item-title>
+						<v-list-item-subtitle>
+							<p class="mb-0">{{ user.emailAddress }}</p>
+							<p class="mb-0">{{ user.lineId }}</p>
+						</v-list-item-subtitle>
 					</v-list-item-content>
 
 					<!--<v-list-item-action>-->

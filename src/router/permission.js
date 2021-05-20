@@ -173,12 +173,13 @@ router.beforeEach(async (to, from, next) => {
 
 	const hasTokenInCookie = getToken();
 	if (hasTokenInCookie) {
-		console.log('has hasToken');
+		console.log('has Token');
 
 		if (store.getters.roles && store.getters.roles.length > 0) {
-			console.log('has hasToken > getters.roles', store.getters);
+			console.log('has Token > getters.roles is', store.getters.roles);
 			next();
 		} else {
+			console.log('has Token but getter.roles not exist, goto re getCurrentUserId & re generate dynamic routes');
 			try {
 				await store.dispatch('GetUserInfo', getCurrentUserId());
 				const GenerateRoutes = await store.dispatch('permission/GenerateRoutes', store.getters.roles);
@@ -186,7 +187,7 @@ router.beforeEach(async (to, from, next) => {
 				next({ ...to, replace: true });
 			} catch (error) {
 				console.log('set dynamic routes error', error);
-				console.log('set dynamic routes error, redirect to singin. Clear old Token, CurrentUserId, Router');
+				console.log('redirect to singin. Clear old Token, CurrentUserId, Router');
 				store.commit('SET_USER_INFO', { logout: true });
 				removeToken();
 				removeCurrentUserId();
@@ -195,12 +196,12 @@ router.beforeEach(async (to, from, next) => {
 			}
 		}
 	} else {
-		console.log('no hasToken');
+		console.log('no Token');
 		if (whiteList.includes(to.path)) {
 			console.log('No token but you are goto the whiteList pages');
 			next();
 		} else {
-			console.log('No token and toPage not in whiteList, so redirect to singin page');
+			console.log('No token and toPage not in whiteList, redirect to singin page');
 			next(`/singin?redirect=${to.path}`);
 		}
 	}
