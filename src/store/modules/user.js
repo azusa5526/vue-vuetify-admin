@@ -7,9 +7,9 @@ const user = {
 	state: {
 		token: getToken(),
 		roles: [],
+		permissions: [],
 		user: '',
-		name: '',
-		permission: []
+		name: ''
 		// avatar: '',
 		// status: '',
 		// code: '',
@@ -22,6 +22,7 @@ const user = {
 	getters: {
 		token: (state) => state.token,
 		roles: (state) => state.roles,
+		permissions: (state) => state.permissions,
 		name: (state) => state.name,
 		user: (state) => state.user,
 		avatar: (state) => state.avatar,
@@ -31,38 +32,19 @@ const user = {
 	},
 
 	mutations: {
-		// SET_USER_INFO: (state, payload) => {
-		// 	if (payload.logout) {
-		// 		state.token = '';
-		// 		state.roles = [];
-		// 		state.user = '';
-		// 		state.name = '';
-		// 		state.avatar = '';
-		// 		state.code = '';
-		// 	} else {
-		// 		state.token = payload.token || state.token;
-		// 		state.roles = payload.roles || state.roles;
-		// 		state.user = payload.user || state.user;
-		// 		state.name = payload.name || state.name;
-		// 		state.avatar = payload.avatar || state.avatar;
-		// 		state.code = payload.code || state.code;
-		// 	}
-		// },
 		SET_USER_INFO: (state, payload) => {
 			if (payload.logout) {
 				state.token = '';
 				state.roles = [];
+				state.permissions = [];
 				state.user = '';
 				state.name = '';
-				// state.avatar = '';
-				// state.code = '';
 			} else {
 				state.token = payload.token || state.token;
 				state.roles = payload.roleNames || state.roles;
+				state.permissions = payload.permissions || state.permissions;
 				state.user = payload || state.user;
 				state.name = payload.name || state.name;
-				// state.avatar = payload.avatar || state.avatar;
-				// state.code = payload.code || state.code;
 			}
 		},
 		SET_TOKEN: (state, token) => {
@@ -71,60 +53,39 @@ const user = {
 	},
 
 	actions: {
-		// Login user
-		// LoginByEmail: async ({ commit, dispatch }, payload) => {
-		// 	try {
-		// 		const response = await loginByEmail(payload.email.trim(), payload.password);
-		// 		console.log('[vuex.user] LoginByEmail', payload, response);
-		// 		await commit('SET_TOKEN', response.user.token);
-		// 		await commit('SET_USER_INFO', response.user);
-		// 		await dispatch('permission/GenerateRoutes', response.user);
-		// 	} catch (err) {
-		// 		console.warn('[vuex.user] LoginByEmail', err);
-		// 	}
-		// },
-
 		Login: async ({ commit, dispatch, getters }, payload) => {
 			console.log('vuex user.js payload', payload);
-			try {
-				const response = await login({
-					userNameOrEmailAddress: payload.username.trim(),
-					password: payload.password,
-					rememberClient: true
-				});
 
-				// console.log('[vuex.user] Login api payload / response', payload, response);
-				// Store token in localstorage
-				await setToken(response.data.result.accessToken);
-				await setCurrentUserId(response.data.result.userId);
-				await commit('SET_TOKEN', response.data.result.accessToken);
+			const response = await login({
+				userNameOrEmailAddress: payload.username.trim(),
+				password: payload.password,
+				rememberClient: true
+			});
+
+			// Store token in Cookie
+			await setToken(response.data.result.accessToken);
+			await setCurrentUserId(response.data.result.userId);
+			await commit('SET_TOKEN', response.data.result.accessToken);
+			if (getters.token) {
 				await dispatch('GetUserInfo', response.data.result.userId);
-				await dispatch('GetUserPermission');
-				await dispatch('permission/GenerateRoutes', getters.roles);
-			} catch (err) {
-				console.warn('[vuex.user] Login', err);
+				await dispatch('permission/GenerateRoutes', getters.permissions);
+			} else {
+				console.log('vuex user.js getters.token not set correctly.');
 			}
 		},
 
-		GetUserInfo: async ({ commit }, payload) => {
-			// console.log('vuex user.js GetUserInfo payload', payload);
-			try {
-				const response = await getUser(payload);
-				await commit('SET_USER_INFO', response.data.result);
-				// console.log('vuex user.js GetUserInfo response', response);
-			} catch (err) {
-				console.warn('vuex user.js GetUserInfo error', err);
-			}
+		GetUserInfo: async ({ commit, getters }, payload) => {
+			const getPermissionsResponse = await AbpUserConfiguration(getters.token);
+			const getUserResponse = await getUser(payload);
+
+			getUserResponse.data.result.permissions = Object.keys(getPermissionsResponse.data.result.auth.grantedPermissions);
+			await commit('SET_USER_INFO', getUserResponse.data.result);
 		},
 
-		GetUserPermission: async ({ commit, getters }) => {
-			try {
-				const response = await AbpUserConfiguration(getters.token);
-				console.log('vuex user.js GetUserPermission response > grantedPermissions', response.data.result.auth.grantedPermissions);
-			} catch (err) {
-				console.error('vuex user.js GetUserPermission error', err);
-			}
-		},
+		// GetUserPermission: async ({ getters }) => {
+		// 	const response = await AbpUserConfiguration(getters.token);
+		// 	console.log('vuex user.js GetUserPermission response > grantedPermissions', response.data.result.auth.grantedPermissions);
+		// },
 
 		// GetUserInfo: async ({ commit, state }) => {
 		// 	console.log('[vuex.user] GetUserInfo');

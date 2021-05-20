@@ -13,22 +13,16 @@ const permissionRouter = {
 	},
 	children: [
 		{
-			path: 'admin',
-			component: () => import('@/views/components/Permission/Admin.vue'),
-			name: 'PermissionAdmin',
-			meta: { title: 'route.permission.admin', roles: ['ADMIN'], noCache: true }
+			path: 'role-management',
+			component: () => import('@/views/components/Permission/RoleManagement.vue'),
+			name: 'PermissionRoleManagement',
+			meta: { title: 'route.permission.roleManagement', permissions: ['Pages.Users'], noCache: true }
 		},
 		{
-			path: 'editor',
-			component: () => import('@/views/components/Permission/Editor.vue'),
-			name: 'PermissionEditor',
-			meta: { title: 'route.permission.editor', roles: ['EDITOR'], noCache: true }
-		},
-		{
-			path: 'visitor',
-			component: () => import('@/views/components/Permission/Visitor.vue'),
-			name: 'PermissionVisitor',
-			meta: { title: 'route.permission.visitor', noCache: true }
+			path: 'permission-management',
+			component: () => import('@/views/components/Permission/PermissionManagement.vue'),
+			name: 'PermissionPermissionManagement',
+			meta: { title: 'route.permission.permissionManagement', permissions: ['Pages.Roles'], noCache: true }
 		}
 	]
 };

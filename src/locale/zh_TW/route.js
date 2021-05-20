@@ -8,11 +8,13 @@ export default {
 	theme: '主題',
 	// pagePermission: 'Page Permission',
 	// rolePermission: 'Role Permission',
-	permissions: '權限',
+	permissions: '權限頁面',
 	permission: {
 		admin: '管理者',
 		editor: '編輯者',
-		visitor: '訪問者'
+		visitor: '訪問者',
+		roleManagement: '帳戶管理',
+		permissionManagement: '權限管理'
 	},
 	components: '元件',
 	component: {
