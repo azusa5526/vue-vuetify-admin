@@ -4,6 +4,10 @@ const state = {
 	roles: []
 };
 
+const getters = {
+	roleList: (state) => state.roles
+};
+
 const mutations = {
 	SET_ROLES: (state, roles) => {
 		state.roles = roles;
@@ -82,5 +86,6 @@ export default {
 	namespaced: true,
 	state,
 	mutations,
-	actions
+	actions,
+	getters
 };

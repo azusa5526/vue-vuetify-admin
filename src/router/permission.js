@@ -33,16 +33,16 @@ router.beforeEach(async (to, from, next) => {
 	if (hasTokenInCookie) {
 		console.log('has Token');
 
-		if (store.getters.permissions && store.getters.permissions.length > 0) {
+		if (store.getters.grantedPermissions && store.getters.grantedPermissions.length > 0) {
 			console.log('has Token > getters.roles is', store.getters.roles);
-			console.log('has Token > getters.permissions is', store.getters.permissions);
+			console.log('has Token > getters.grantedPermissions is', store.getters.grantedPermissions);
 			next();
 		} else {
 			console.log('has Token but getter.roles not exist, goto re getCurrentUserId & re generate dynamic routes');
 			try {
 				await store.dispatch('GetUserInfo', getCurrentUserId());
 				// const GenerateRoutes = await store.dispatch('permission/GenerateRoutes', store.getters.roles);
-				const GenerateRoutes = await store.dispatch('permission/GenerateRoutes', store.getters.permissions);
+				const GenerateRoutes = await store.dispatch('permission/GenerateRoutes', store.getters.grantedPermissions);
 				console.log('set dynamic routes successfully', GenerateRoutes);
 				next({ ...to, replace: true });
 			} catch (error) {

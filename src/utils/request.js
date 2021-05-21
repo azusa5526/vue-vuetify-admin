@@ -41,15 +41,15 @@ instance.interceptors.response.use(
 		if (error.response) {
 			switch (error.response.status) {
 				case 404:
-					console.log('code 404, page not found');
+					console.log('Request.js error. Code 404, page not found.');
 					// go to 404 page
 					break;
 				case 500:
-					console.log('code 500, internal server error');
+					console.log('Request.js error. Code 500, internal server error.');
 					// go to 500 page
 					break;
 				default:
-					console.log(error.message);
+					console.log('Request.js error.', error.message);
 			}
 		}
 	}

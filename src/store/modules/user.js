@@ -1,4 +1,3 @@
-// import { loginByEmail, getUserInfo } from '@/api/login';
 import { login, getUser, AbpUserConfiguration } from '@/api/user';
 import { setToken, removeToken, getToken, setCurrentUserId, removeCurrentUserId } from '@/utils/auth';
 import { resetRouter } from '@/router';
@@ -7,7 +6,7 @@ const user = {
 	state: {
 		token: getToken(),
 		roles: [],
-		permissions: [],
+		grantedPermissions: [],
 		user: '',
 		name: ''
 		// avatar: '',
@@ -22,7 +21,8 @@ const user = {
 	getters: {
 		token: (state) => state.token,
 		roles: (state) => state.roles,
-		permissions: (state) => state.permissions,
+		grantedPermissions: (state) => state.grantedPermissions,
+		allPermissions: (state) => state.allPermissions,
 		name: (state) => state.name,
 		user: (state) => state.user,
 		avatar: (state) => state.avatar,
@@ -36,13 +36,15 @@ const user = {
 			if (payload.logout) {
 				state.token = '';
 				state.roles = [];
-				state.permissions = [];
+				state.grantedPermissions = [];
+				state.allPermissions = [];
 				state.user = '';
 				state.name = '';
 			} else {
 				state.token = payload.token || state.token;
 				state.roles = payload.roleNames || state.roles;
-				state.permissions = payload.permissions || state.permissions;
+				state.grantedPermissions = payload.grantedPermissions || state.grantedPermissions;
+				state.allPermissions = payload.allPermissions || state.allPermissions;
 				state.user = payload || state.user;
 				state.name = payload.name || state.name;
 			}
@@ -68,7 +70,7 @@ const user = {
 			await commit('SET_TOKEN', response.data.result.accessToken);
 			if (getters.token) {
 				await dispatch('GetUserInfo', response.data.result.userId);
-				await dispatch('permission/GenerateRoutes', getters.permissions);
+				await dispatch('permission/GenerateRoutes', getters.grantedPermissions);
 			} else {
 				console.log('vuex user.js getters.token not set correctly.');
 			}
@@ -78,35 +80,13 @@ const user = {
 			const getPermissionsResponse = await AbpUserConfiguration(getters.token);
 			const getUserResponse = await getUser(payload);
 
-			getUserResponse.data.result.permissions = Object.keys(getPermissionsResponse.data.result.auth.grantedPermissions);
+			console.log('vuex user.js GetUserInfo getUserResponse', getUserResponse);
+
+			getUserResponse.data.result.grantedPermissions = Object.keys(getPermissionsResponse.data.result.auth.grantedPermissions);
+			getUserResponse.data.result.allPermissions = Object.keys(getPermissionsResponse.data.result.auth.allPermissions);
+
 			await commit('SET_USER_INFO', getUserResponse.data.result);
 		},
-
-		// GetUserPermission: async ({ getters }) => {
-		// 	const response = await AbpUserConfiguration(getters.token);
-		// 	console.log('vuex user.js GetUserPermission response > grantedPermissions', response.data.result.auth.grantedPermissions);
-		// },
-
-		// GetUserInfo: async ({ commit, state }) => {
-		// 	console.log('[vuex.user] GetUserInfo');
-		// 	try {
-		// 		const response = await getUserInfo(state.token);
-
-		// 		// Since mockjs does not support custom status codes, it can only be hacked like this
-		// 		if (!response) {
-		// 			throw new Error('Verification failed, please login again.');
-		// 		}
-
-		// 		// Verify returned roles are a non-null array
-		// 		if (response.user.roles && response.user.roles.length === 0) {
-		// 			throw new Error('getInfo: roles must be a non-null array!');
-		// 		}
-
-		// 		commit('SET_USER_INFO', response.user);
-		// 	} catch (err) {
-		// 		console.warn('[vuex.user] GetUserInfo', err);
-		// 	}
-		// },
 
 		LogOut: async ({ commit }) => {
 			console.log('[vuex.user] LogOut');

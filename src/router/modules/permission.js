@@ -16,13 +16,13 @@ const permissionRouter = {
 			path: 'role-management',
 			component: () => import('@/views/components/Permission/RoleManagement.vue'),
 			name: 'PermissionRoleManagement',
-			meta: { title: 'route.permission.roleManagement', permissions: ['Pages.Users'], noCache: true }
+			meta: { title: 'route.permission.roleManagement', grantedPermissions: ['Pages.Users'], noCache: true }
 		},
 		{
 			path: 'permission-management',
 			component: () => import('@/views/components/Permission/PermissionManagement.vue'),
 			name: 'PermissionPermissionManagement',
-			meta: { title: 'route.permission.permissionManagement', permissions: ['Pages.Roles'], noCache: true }
+			meta: { title: 'route.permission.permissionManagement', grantedPermissions: ['Pages.Roles'], noCache: true }
 		}
 	]
 };

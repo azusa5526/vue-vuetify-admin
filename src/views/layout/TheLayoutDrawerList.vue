@@ -7,7 +7,7 @@
 				</v-list-item-icon>
 
 				<v-list-item-content>
-					<v-list-item-title>
+					<v-list-item-title class="text-subtitle-2">
 						{{ getListTitle(onlyOneChild) }}
 					</v-list-item-title>
 				</v-list-item-content>
@@ -16,7 +16,7 @@
 			<v-list-group v-else :prepend-icon="getListIcon(item)">
 				<template v-slot:activator>
 					<v-list-item-content>
-						<v-list-item-title>
+						<v-list-item-title class="text-subtitle-2">
 							{{ getListTitle(item) }}
 						</v-list-item-title>
 					</v-list-item-content>

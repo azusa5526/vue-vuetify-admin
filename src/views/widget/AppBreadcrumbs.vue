@@ -1,7 +1,7 @@
 <template>
 	<v-breadcrumbs class="hidden-sm-and-down" :items="levelList" divider="/">
 		<template v-slot:item="props">
-			<a @click.prevent="handleLink(props.item)">
+			<a @click.prevent="handleLink(props.item)" class="text-subtitle-2">
 				{{ generateTitle(props.item.meta.title) }}
 			</a>
 		</template>
