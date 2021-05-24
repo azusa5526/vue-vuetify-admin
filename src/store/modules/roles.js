@@ -19,9 +19,8 @@ const actions = {
 		return new Promise((resolve, reject) => {
 			getRoles()
 				.then((response) => {
-					const items = response.data.result.items;
-					commit('SET_ROLES', items);
-					resolve(items);
+					commit('SET_ROLES', response.data.result.items);
+					resolve(response);
 				})
 				.catch((error) => {
 					reject(error);
@@ -43,12 +42,10 @@ const actions = {
 	},
 
 	addRole(context, info) {
-		console.log('vuex roles.js addRole info', info);
 		return new Promise((resolve, reject) => {
 			addRole(info)
 				.then((response) => {
-					const items = response.data.result.items;
-					resolve(items);
+					resolve(response.data.success);
 				})
 				.catch((error) => {
 					reject(error);
@@ -60,8 +57,7 @@ const actions = {
 		return new Promise((resolve, reject) => {
 			updateRole(info)
 				.then((response) => {
-					const items = response.data.result.items;
-					resolve(items);
+					resolve(response.data.success);
 				})
 				.catch((error) => {
 					reject(error);
@@ -73,8 +69,7 @@ const actions = {
 		return new Promise((resolve, reject) => {
 			deleteRole(id)
 				.then((response) => {
-					const res = response.data.result;
-					resolve(res);
+					resolve(response.data.success);
 				})
 				.catch((error) => {
 					reject(error);

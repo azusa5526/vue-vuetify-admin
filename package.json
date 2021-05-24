@@ -36,6 +36,7 @@
 		"roboto-fontface": "*",
 		"sortablejs": "^1.10.1",
 		"tui-editor": "^1.4.10",
+		"vee-validate": "^3.4.6",
 		"vue": "^2.6.11",
 		"vue-count-to": "^1.0.13",
 		"vue-i18n": "^8.15.3",
