@@ -6,14 +6,7 @@
 					<v-card-title>
 						<div>權限管理</div>
 						<v-spacer></v-spacer>
-						<v-text-field
-							class="pt-0 mt-0"
-							v-model="search"
-							append-icon="mdi-magnify"
-							label="Search"
-							single-line
-							hide-details
-						></v-text-field>
+						<v-text-field class="pt-0 mt-0" v-model="search" append-icon="mdi-magnify" label="搜尋" single-line hide-details></v-text-field>
 					</v-card-title>
 				</v-card>
 				<v-data-table :headers="headers" :items="roleList" :search="search" sort-by="calories" class="elevation-1">
@@ -67,18 +60,18 @@
 										<v-card-actions class="pb-4">
 											<v-spacer></v-spacer>
 											<v-btn color="blue darken-1" text @click="close"> 取消 </v-btn>
-											<v-btn color="blue darken-1" text @click="validate()"> 儲存 </v-btn>
+											<v-btn color="blue darken-1" text @click="editItemConfirm()"> 儲存 </v-btn>
 										</v-card-actions>
 									</v-card>
 								</v-form>
 							</v-dialog>
 							<v-dialog v-model="dialogDelete" max-width="550px">
 								<v-card>
-									<v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+									<v-card-title class="text-h6">即將刪除此角色，是否繼續</v-card-title>
 									<v-card-actions>
 										<v-spacer></v-spacer>
-										<v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-										<v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+										<v-btn color="blue darken-1" text @click="closeDelete"> 取消 </v-btn>
+										<v-btn color="error darken-1" text @click="deleteItemConfirm()"> 刪除 </v-btn>
 										<v-spacer></v-spacer>
 									</v-card-actions>
 								</v-card>
@@ -86,8 +79,8 @@
 						</v-toolbar>
 					</template>
 					<template v-slot:[`item.actions`]="{ item }">
-						<v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-						<v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+						<v-icon size="20" color="accent" class="mr-3" @click="prepareEditedItem(item)"> mdi-pencil </v-icon>
+						<v-icon size="20" color="error" @click="prepareDeletedItem(item)"> mdi-delete </v-icon>
 					</template>
 					<template v-slot:no-data>
 						<v-btn color="primary" @click="getRoleList()"> Reset </v-btn>
@@ -100,7 +93,7 @@
 
 <script>
 import AppTopCenter from '@/views/widget/AppTopCenter.vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
 	name: 'PermissionManagement',
@@ -128,13 +121,14 @@ export default {
 			name: '',
 			displayName: '',
 			description: '',
-			grantedPermissions: ''
+			grantedPermissions: [],
+			normalizedName: ''
 		},
 		defaultItem: {
 			name: '',
 			displayName: '',
 			description: '',
-			grantedPermissions: ''
+			grantedPermissions: []
 		},
 		valid: true,
 		name: '',
@@ -158,114 +152,48 @@ export default {
 
 		dialogDelete(val) {
 			val || this.closeDelete();
-		},
-
-		validate() {
-			// this.$refs.form.validate();
-			this.$refs.form[0].validate();
 		}
 	},
 
 	created() {
-		// this.initialize();
 		this.getRoleList();
 	},
 
 	methods: {
+		...mapActions('roles', ['addRole', 'updateRole', 'deleteRole']),
+
 		getRoleList() {
 			this.$store.dispatch('roles/getRoles');
 		},
 
-		// initialize() {
-		// 	this.desserts = [
-		// 		{
-		// 			name: 'Frozen Yogurt',
-		// 			calories: 159,
-		// 			fat: 6.0,
-		// 			carbs: 24,
-		// 			protein: 4.0
-		// 		},
-		// 		{
-		// 			name: 'Ice cream sandwich',
-		// 			calories: 237,
-		// 			fat: 9.0,
-		// 			carbs: 37,
-		// 			protein: 4.3
-		// 		},
-		// 		{
-		// 			name: 'Eclair',
-		// 			calories: 262,
-		// 			fat: 16.0,
-		// 			carbs: 23,
-		// 			protein: 6.0
-		// 		},
-		// 		{
-		// 			name: 'Cupcake',
-		// 			calories: 305,
-		// 			fat: 3.7,
-		// 			carbs: 67,
-		// 			protein: 4.3
-		// 		},
-		// 		{
-		// 			name: 'Gingerbread',
-		// 			calories: 356,
-		// 			fat: 16.0,
-		// 			carbs: 49,
-		// 			protein: 3.9
-		// 		},
-		// 		{
-		// 			name: 'Jelly bean',
-		// 			calories: 375,
-		// 			fat: 0.0,
-		// 			carbs: 94,
-		// 			protein: 0.0
-		// 		},
-		// 		{
-		// 			name: 'Lollipop',
-		// 			calories: 392,
-		// 			fat: 0.2,
-		// 			carbs: 98,
-		// 			protein: 0
-		// 		},
-		// 		{
-		// 			name: 'Honeycomb',
-		// 			calories: 408,
-		// 			fat: 3.2,
-		// 			carbs: 87,
-		// 			protein: 6.5
-		// 		},
-		// 		{
-		// 			name: 'Donut',
-		// 			calories: 452,
-		// 			fat: 25.0,
-		// 			carbs: 51,
-		// 			protein: 4.9
-		// 		},
-		// 		{
-		// 			name: 'KitKat',
-		// 			calories: 518,
-		// 			fat: 26.0,
-		// 			carbs: 65,
-		// 			protein: 7
-		// 		}
-		// 	];
-		// },
-
-		editItem(item) {
+		prepareEditedItem(item) {
 			this.editedIndex = this.roleList.indexOf(item);
 			this.editedItem = Object.assign({}, item);
 			this.dialog = true;
 		},
 
-		deleteItem(item) {
+		prepareDeletedItem(item) {
 			this.editedIndex = this.roleList.indexOf(item);
 			this.editedItem = Object.assign({}, item);
 			this.dialogDelete = true;
 		},
 
 		deleteItemConfirm() {
-			this.roleList.splice(this.editedIndex, 1);
+			if (this.editedIndex !== -1) {
+				this.deleteRole(this.editedItem);
+			}
 			this.closeDelete();
+			this.getRoleList();
+		},
+
+		editItemConfirm() {
+			if (this.editedIndex === -1) {
+				this.addRole(this.editedItem);
+			} else {
+				this.updateRole(this.editedItem);
+			}
+			this.close();
+			this.getRoleList();
 		},
 
 		close() {
@@ -273,6 +201,7 @@ export default {
 			this.$nextTick(() => {
 				this.editedItem = Object.assign({}, this.defaultItem);
 				this.editedIndex = -1;
+				this.resetValidation();
 			});
 		},
 
@@ -284,13 +213,16 @@ export default {
 			});
 		},
 
-		save() {
-			if (this.editedIndex > -1) {
-				Object.assign(this.roleList[this.editedIndex], this.editedItem);
-			} else {
-				this.roleList.push(this.editedItem);
-			}
-			this.close();
+		// validate() {
+		// 	if (this.$refs.form.validate()) {
+		// 		return true;
+		// 	} else {
+		// 		return false;
+		// 	}
+		// },
+
+		resetValidation() {
+			this.$refs.form.resetValidation();
 		}
 	}
 };

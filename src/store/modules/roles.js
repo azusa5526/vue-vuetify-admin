@@ -29,7 +29,7 @@ const actions = {
 		});
 	},
 
-	getRole(id) {
+	getRole(context, id) {
 		return new Promise((resolve, reject) => {
 			getRole(id)
 				.then((response) => {
@@ -42,7 +42,8 @@ const actions = {
 		});
 	},
 
-	addRole(info) {
+	addRole(context, info) {
+		console.log('vuex roles.js addRole info', info);
 		return new Promise((resolve, reject) => {
 			addRole(info)
 				.then((response) => {
@@ -55,7 +56,7 @@ const actions = {
 		});
 	},
 
-	updateRole(info) {
+	updateRole(context, info) {
 		return new Promise((resolve, reject) => {
 			updateRole(info)
 				.then((response) => {
@@ -68,7 +69,7 @@ const actions = {
 		});
 	},
 
-	deleteRole(id) {
+	deleteRole(context, id) {
 		return new Promise((resolve, reject) => {
 			deleteRole(id)
 				.then((response) => {

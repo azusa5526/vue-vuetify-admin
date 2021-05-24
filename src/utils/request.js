@@ -1,6 +1,6 @@
 import axios from 'axios';
 import store from '@/store';
-import { getToken } from '@/utils/auth';
+// import { getToken } from '@/utils/auth';
 
 const instance = axios.create({
 	baseURL: process.env.VUE_APP_BASE_API,
@@ -18,10 +18,12 @@ const instance = axios.create({
 instance.interceptors.request.use(
 	(config) => {
 		// do something before request is sent
+		console.log('request.js store', store);
 		if (store.getters.token) {
 			// let each request carry token
-			config.headers.Authorization = 'Bearer ' + getToken();
+			config.headers.Authorization = 'Bearer ' + store.getters.token;
 		}
+		console.log('utlis request interceptors.request config', config);
 		return config;
 	},
 	(error) => {

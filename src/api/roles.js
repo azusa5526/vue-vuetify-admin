@@ -16,12 +16,14 @@ export function getRole(params) {
 }
 
 export function addRole(data) {
+	console.log('vuex roles.js addRole data', data);
 	return request({
 		url: '/api/services/app/Role/Create',
 		method: 'post',
 		data
 	});
 }
+
 export function updateRole(data) {
 	return request({
 		url: '/api/services/app/Role/Update',
