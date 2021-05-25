@@ -146,7 +146,7 @@ export default {
 
 	computed: {
 		...mapGetters('roles', ['roleList']),
-		...mapGetters(['allPermissions']),
+		...mapGetters('user', ['allPermissions']),
 
 		formTitle() {
 			return this.editedIndex === -1 ? '新增權限-角色' : '編輯權限-角色';

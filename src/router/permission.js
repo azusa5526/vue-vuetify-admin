@@ -3,14 +3,12 @@ import router from './index';
 import store from '../store';
 import authRouter from './modules/auth';
 import 'nprogress/nprogress.css'; // progress bar style
-// eslint-disable-next-line no-unused-vars
 import { getToken, getCurrentUserId, removeToken, removeCurrentUserId } from '@/utils/auth';
 
-NProgress.configure({ showSpinner: false }); // NProgress Configuration
+// NProgress Configuration
+NProgress.configure({ showSpinner: false });
 
-/**
- * Generate white list
- */
+// Generate white list
 const whiteList = ['/landing', '/land']
 	.concat(Array.from(authRouter, (route) => route.path))
 	.concat(Array.from(authRouter, (route) => route.alias));
@@ -29,25 +27,37 @@ router.beforeEach(async (to, from, next) => {
 
 	const hasTokenInCookie = getToken();
 	if (hasTokenInCookie) {
-		// console.log('has Token');
+		// console.log('has Token', hasTokenInCookie);
 
-		if (store.getters.grantedPermissions && store.getters.grantedPermissions.length > 0) {
-			// console.log('has Token > getters.roles is', store.getters.roles);
-			// console.log('has Token > getters.grantedPermissions is', store.getters.grantedPermissions);
+		// console.log('router permission.js store', store);
+
+		if (store.getters['user/grantedPermissions'] && store.getters['user/grantedPermissions'].length > 0) {
+			// console.log('has Token > getters.roles is', store.getters['user/roles']);
+			// console.log('has Token > getters.grantedPermissions is', store.getters['user/grantedPermissions']);
 			next();
 		} else {
-			console.log('has Token but getter.roles not exist, goto re getCurrentUserId & re generate dynamic routes');
-			try {
-				await store.dispatch('GetUserInfo', getCurrentUserId());
-				// const GenerateRoutes = await store.dispatch('permission/GenerateRoutes', store.getters.roles);
-				// const GenerateRoutes =
-				await store.dispatch('permission/GenerateRoutes', store.getters.grantedPermissions);
-				// console.log('set dynamic routes successfully', GenerateRoutes);
+			// console.log('has Token but getter.roles not exist, goto re getCurrentUserId & re generate dynamic routes');
+
+			// const GetUserInfo = await store.dispatch('user/GetUserInfo', getCurrentUserId(), { root: true });
+			// console.log('router permission.js GetUserInfo', GetUserInfo);
+			// console.log('router permission.js GetUserInfo<getters user/grantedPermissions> ', store.getters['user/grantedPermissions']);
+			await store.dispatch('user/GetUserInfo', getCurrentUserId());
+
+			// const GenerateRoutes = await store.dispatch('permission/GenerateRoutes', store.getters['user/grantedPermissions']);
+			// console.log('router permission.js GenerateRoutes', GenerateRoutes);
+			// console.log(
+			// 	'router permission.js GenerateRoutes<getters permission/permissionRoutes> ',
+			// 	store.getters['permission/permissionRoutes']
+			// );
+			await store.dispatch('permission/GenerateRoutes', store.getters['user/grantedPermissions']);
+
+			if (store.getters['permission/permissionRoutes']) {
+				// console.log('set dynamic routes successfully', store.getters['permission/permissionRoutes']);
 				next({ ...to, replace: true });
-			} catch (error) {
-				// console.log('set dynamic routes error', error);
+			} else {
+				// console.log('set dynamic routes error');
 				// console.log('redirect to signin. Clear old Token, CurrentUserId, Router');
-				store.commit('SET_USER_INFO', { logout: true });
+				store.commit('user/SET_USER_INFO', { logout: true });
 				removeToken();
 				removeCurrentUserId();
 				router.resetRouter();

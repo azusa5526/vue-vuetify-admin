@@ -71,7 +71,7 @@ export default {
 	methods: {
 		async login() {
 			this.loading = true;
-			await this.$store.dispatch('Login', {
+			await this.$store.dispatch('user/Login', {
 				username: this.model.username,
 				password: this.model.password
 			});

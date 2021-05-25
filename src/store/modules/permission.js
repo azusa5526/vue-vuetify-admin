@@ -32,37 +32,41 @@ export const filterAsyncRoutes = (grantedPermissions, routes) => {
 	return res;
 };
 
-const permission = {
-	namespaced: true,
-	state: {
-		routes: [],
-		addRoutes: []
-	},
+const state = {
+	routes: [],
+	addRoutes: []
+};
 
-	getters: {
-		permissionRoutes: (state) => state.routes,
-		addRoutes: (state) => state.addRoutes
-	},
+const getters = {
+	permissionRoutes: (state) => state.routes,
+	addRoutes: (state) => state.addRoutes
+};
 
-	mutations: {
-		SET_ROUTES: (state, routes) => {
-			state.addRoutes = routes;
-			state.routes = constantRoutes.concat(routes);
-		}
-	},
-	actions: {
-		GenerateRoutes: async ({ commit }, payload) => {
-			// console.log('vuex permission.js GenerateRoutes payload', payload);
-
-			const accessedRoutes = filterAsyncRoutes(payload, asyncRoutes);
-			commit('SET_ROUTES', accessedRoutes);
-
-			// Apply selected allowed routes
-			router.addRoutes(accessedRoutes);
-			console.log('[vuex.permission] accessedRoutes ', constantRoutes);
-			console.groupEnd();
-		}
+const mutations = {
+	SET_ROUTES: (state, routes) => {
+		state.addRoutes = routes;
+		state.routes = constantRoutes.concat(routes);
 	}
 };
 
-export default permission;
+const actions = {
+	GenerateRoutes: async ({ commit }, payload) => {
+		// console.log('vuex permission.js GenerateRoutes payload', payload);
+
+		const accessedRoutes = filterAsyncRoutes(payload, asyncRoutes);
+		commit('SET_ROUTES', accessedRoutes);
+
+		// Apply selected allowed routes
+		router.addRoutes(accessedRoutes);
+		// console.log('[vuex.permission] accessedRoutes ', constantRoutes);
+		console.groupEnd();
+	}
+};
+
+export default {
+	namespaced: true,
+	state,
+	mutations,
+	actions,
+	getters
+};

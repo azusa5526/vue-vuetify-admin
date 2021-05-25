@@ -95,11 +95,11 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters(['user', 'name', 'avatar', 'status'])
+		...mapGetters('user', ['user', 'name', 'avatar', 'status'])
 	},
 	methods: {
 		logout() {
-			this.$store.dispatch('LogOut');
+			this.$store.dispatch('user/LogOut');
 			this.$router.push('/landing');
 		},
 		toggleSettingsPanel() {

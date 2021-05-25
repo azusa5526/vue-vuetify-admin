@@ -18,9 +18,9 @@ const instance = axios.create({
 instance.interceptors.request.use(
 	(config) => {
 		// do something before request is sent
-		if (store.getters.token) {
+		if (store.getters['user/token']) {
 			// let each request carry token
-			config.headers.Authorization = 'Bearer ' + store.getters.token;
+			config.headers.Authorization = 'Bearer ' + store.getters['user/token'];
 		}
 		// console.log('utlis request interceptors.request config', config);
 		return config;
