@@ -3,8 +3,8 @@
 		<template v-slot:activator="{ on }">
 			<v-btn icon large text v-on="on">
 				<v-avatar size="36px">
-					<img v-if="avatar" :src="avatar" alt="name" />
-					<v-icon v-else x-large class="blue--text"> mdi-account </v-icon>
+					<!-- <img v-if="avatar" :src="avatar" alt="name" /> -->
+					<v-icon x-large class="blue--text"> mdi-account </v-icon>
 				</v-avatar>
 			</v-btn>
 		</template>
@@ -12,8 +12,8 @@
 			<v-list>
 				<v-list-item>
 					<v-list-item-avatar>
-						<img v-if="avatar" :src="avatar" alt="name" />
-						<v-icon v-else x-large class="blue--text"> mdi-account </v-icon>
+						<!-- <img v-if="avatar" :src="avatar" alt="name" /> -->
+						<v-icon x-large class="blue--text"> mdi-account </v-icon>
 					</v-list-item-avatar>
 
 					<v-list-item-content>
@@ -95,7 +95,8 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters('user', ['user', 'name', 'avatar', 'status'])
+		// ...mapGetters('user', ['user', 'name', 'avatar', 'status'])
+		...mapGetters('user', ['user', 'name'])
 	},
 	methods: {
 		logout() {
