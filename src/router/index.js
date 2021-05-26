@@ -150,12 +150,6 @@ export function resetRouter() {
 	router.matcher = newRouter.matcher; // reset router
 }
 
-// export default new Router({
-// 	// mode: 'history', // gh-pages
-// 	scrollBehavior: () => ({ y: 0 }),
-// 	routes: constantRoutes
-// });
-
 export const asyncRoutes = [
 	/** When your routing table is too long, you can split it into small modules */
 	permissionRouter,

@@ -12,7 +12,9 @@ export default {
 	permission: {
 		admin: 'Admin',
 		editor: 'Editor',
-		visitor: 'Visitor'
+		visitor: 'Visitor',
+		roleManagement: 'Role Management',
+		permissionManagement: 'Permission Management'
 	},
 	components: 'Components',
 	component: {

@@ -21,7 +21,7 @@ export default {
 		navbarDense: '緊湊導航欄',
 		navbarLogo: '導航欄Logo',
 		settingsBtn: '設定按鈕',
-		footer: '頁角'
+		footer: '頁腳'
 	},
 	login: {
 		titleIn: '登入',

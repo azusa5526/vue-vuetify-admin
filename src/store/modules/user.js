@@ -1,4 +1,4 @@
-import { login, getUser, AbpUserConfiguration } from '@/api/user';
+import { login, getUser, AbpUserConfiguration, getUserAll, createUser, deleteUser, updateUser } from '@/api/user';
 // eslint-disable-next-line no-unused-vars
 import { setToken, removeToken, getToken, setCurrentUserId, removeCurrentUserId } from '@/utils/auth';
 import { resetRouter } from '@/router';
@@ -8,7 +8,8 @@ const state = {
 	roles: [],
 	grantedPermissions: [],
 	user: '',
-	name: ''
+	name: '',
+	allUsers: []
 	// avatar: '',
 	// status: '',
 	// code: '',
@@ -25,10 +26,11 @@ const getters = {
 	allPermissions: (state) => state.allPermissions,
 	name: (state) => state.name,
 	user: (state) => state.user,
-	avatar: (state) => state.avatar,
-	status: (state) => state.status,
-	introduction: (state) => state.introduction,
-	setting: (state) => state.setting
+	// avatar: (state) => state.avatar,
+	// status: (state) => state.status,
+	// introduction: (state) => state.introduction,
+	setting: (state) => state.setting,
+	allUsersList: (state) => state.allUsers
 };
 
 const mutations = {
@@ -49,8 +51,13 @@ const mutations = {
 			state.name = payload.name || state.name;
 		}
 	},
+
 	SET_TOKEN: (state, token) => {
 		state.token = token;
+	},
+
+	SET_ALL_USERS: (state, allUsers) => {
+		state.allUsers = allUsers;
 	}
 };
 
@@ -100,6 +107,38 @@ const actions = {
 		await commit('SET_USER_INFO', { logout: true });
 		removeCurrentUserId();
 		resetRouter();
+	},
+
+	getAllUsers: async ({ commit }) => {
+		const response = await getUserAll();
+		commit('SET_ALL_USERS', response.data.result.items);
+		console.log('vuex user.js getAllUsers response', response);
+	},
+
+	createUser: async (context, payload) => {
+		try {
+			await createUser(payload);
+		} catch (error) {
+			throw new Error('vuex user.js createUser error', error);
+		}
+	},
+
+	deleteUser: async (context, id) => {
+		console.log('vuex uesr.js deleteUser id', id);
+		try {
+			await deleteUser(id);
+		} catch (error) {
+			throw new Error('vuex user.js deleteUser error', error);
+		}
+	},
+
+	updateUser: async (context, payload) => {
+		console.log('vuex user.js updateUser', payload);
+		try {
+			await updateUser(payload);
+		} catch (error) {
+			throw new Error('vuex user.js updateUser error', error);
+		}
 	}
 
 	// Dynamically modify permissions

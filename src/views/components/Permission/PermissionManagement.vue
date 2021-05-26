@@ -9,7 +9,7 @@
 						<v-text-field class="pt-0 mt-0" v-model="search" append-icon="mdi-magnify" label="搜尋" single-line hide-details></v-text-field>
 					</v-card-title>
 
-					<v-data-table :headers="headers" :items="roleList" :search="search" sort-by="calories" class="elevation-1">
+					<v-data-table :headers="headers" :items="roleList" :search="search" sort-by="name" class="elevation-1">
 						<template v-slot:top>
 							<v-toolbar flat>
 								<v-spacer></v-spacer>
@@ -94,7 +94,7 @@
 							<v-icon size="20" color="error" @click="prepareDeletedItem(item)"> mdi-delete </v-icon>
 						</template>
 						<template v-slot:no-data>
-							<v-btn color="primary" @click="getRoleList()"> Reset </v-btn>
+							<v-btn color="primary" @click="getRoles()"> Reset </v-btn>
 						</template>
 					</v-data-table>
 				</v-card>
@@ -120,7 +120,6 @@ export default {
 			{
 				text: '權限-角色名稱',
 				align: 'start',
-				sortable: false,
 				value: 'name'
 			},
 			{ text: '顯示名稱', value: 'displayName', sortable: false },
@@ -164,17 +163,11 @@ export default {
 	},
 
 	created() {
-		this.getRoleList();
+		this.getRoles();
 	},
 
 	methods: {
 		...mapActions('roles', ['getRoles', 'addRole', 'updateRole', 'deleteRole']),
-
-		getRoleList() {
-			this.getRoles().then((result) => {
-				console.log('getRoleList', result);
-			});
-		},
 
 		prepareEditedItem(item) {
 			this.editedIndex = this.roleList.indexOf(item);
@@ -192,7 +185,7 @@ export default {
 			if (this.editedIndex === -1) {
 				this.addRole(this.editedItem).then((result) => {
 					if (result) {
-						this.getRoleList();
+						this.getRoles();
 						this.close();
 					} else {
 						console.error('PermissionManagement.vue editItemConfirm addRoles Error', result);
@@ -202,7 +195,7 @@ export default {
 			} else {
 				this.updateRole(this.editedItem).then((result) => {
 					if (result) {
-						this.getRoleList();
+						this.getRoles();
 						this.close();
 					} else {
 						console.error('PermissionManagement.vue editItemConfirm updateRole Error', result);
@@ -215,7 +208,7 @@ export default {
 		deleteItemConfirm() {
 			this.deleteRole(this.editedItem).then((result) => {
 				if (result) {
-					this.getRoleList();
+					this.getRoles();
 					this.closeDelete();
 				} else {
 					console.error('PermissionManagement.vue deleteItemConfirm deleteRole Error', result);

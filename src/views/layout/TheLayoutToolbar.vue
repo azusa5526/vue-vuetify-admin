@@ -5,9 +5,9 @@
 		</v-app-bar-nav-icon>
 		<breadcrumbs />
 		<v-spacer />
-		<error-log />
+		<!-- <error-log /> -->
 		<full-screen />
-		<notification />
+		<!-- <notification /> -->
 		<localization />
 		<profile />
 	</v-app-bar>
@@ -16,20 +16,20 @@
 <script>
 import { mapGetters } from 'vuex';
 import Breadcrumbs from '../widget/AppBreadcrumbs.vue';
-import ErrorLog from '../widget/AppErrorLog.vue';
+// import ErrorLog from '../widget/AppErrorLog.vue';
 import FullScreen from '../widget/AppFullScreen.vue';
 import Localization from '../widget/AppLocalization.vue';
-import Notification from '../widget/AppNotification.vue';
+// import Notification from '../widget/AppNotification.vue';
 import Profile from '../widget/AppProfile.vue';
 
 export default {
 	name: 'TheLayoutToolbar',
 	components: {
 		Breadcrumbs,
-		ErrorLog,
+		// ErrorLog,
 		FullScreen,
 		Localization,
-		Notification,
+		// Notification,
 		Profile
 	},
 	data: () => ({}),

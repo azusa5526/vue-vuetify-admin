@@ -6,9 +6,7 @@
 @import 'vuetify/src/styles/settings/_variables.scss';
 
 // Override Globals Variables
-// $font-size-root: 14px;
 $btn-border-radius: 0px;
 $data-table-regular-header-font-size: map-deep-get($headings, 'subtitle-1', 'size') !default;
-// $data-table-regular-row-font-size: map-deep-get($headings, 'subtitle-1', 'size') !default;
 
 // @import '~vuetify/src/styles/main.sass';
