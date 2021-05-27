@@ -56,6 +56,15 @@ export function getUserAll(params) {
 		params: params
 	});
 }
+
+export function getUsersByParams(params) {
+	return request({
+		url: '/api/services/app/User/GetAll',
+		method: 'get',
+		params: params
+	});
+}
+
 export function getUser(id) {
 	return request({
 		url: '/api/services/app/User/Get',
@@ -63,6 +72,7 @@ export function getUser(id) {
 		params: { Id: id }
 	});
 }
+
 export function notifyByEmail(data) {
 	return request({
 		url: '/api/services/app/User/NotifyByEmail',

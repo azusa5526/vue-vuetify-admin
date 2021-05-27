@@ -2,18 +2,48 @@
 	<AppTopCenter>
 		<template v-slot:page>
 			<v-col>
+				<v-card v-if="pendingUsersList.length !== 0">
+					<v-card-title>
+						<div>待審核帳戶</div>
+					</v-card-title>
+
+					<v-data-table
+						:headers="headers"
+						:items="pendingUsersList"
+						:items-per-page="customItemsPerPage"
+						sort-by="userName"
+						class="elevation-1 mb-4"
+					>
+						<template v-slot:[`item.actions`]="{ item }">
+							<v-icon size="20" color="accent" class="mr-3" @click="prepareEditedItem({ item: item, dialogMode: 'dialogEdit' })">
+								mdi-pencil
+							</v-icon>
+							<v-icon size="20" color="error" @click="prepareEditedItem({ item: item, dialogMode: 'dialogDelete' })"> mdi-delete </v-icon>
+						</template>
+						<template v-slot:no-data>
+							<v-btn color="primary" @click="getDataFromApi()"> Reset </v-btn>
+						</template>
+					</v-data-table>
+				</v-card>
+
 				<v-card>
 					<v-card-title>
 						<div>帳戶管理</div>
 						<v-spacer></v-spacer>
 						<v-text-field class="pt-0 mt-0" v-model="search" append-icon="mdi-magnify" label="搜尋" single-line hide-details></v-text-field>
 					</v-card-title>
-
-					<v-data-table :headers="headers" :items="allUsersList" :search="search" sort-by="userName" class="elevation-1">
+					<v-data-table
+						:headers="headers"
+						:items="vetifiedUsersList"
+						:search="search"
+						:options.sync="options"
+						sort-by="userName"
+						class="elevation-1"
+					>
 						<template v-slot:top>
 							<v-toolbar flat>
 								<v-spacer></v-spacer>
-								<v-dialog v-model="dialog" max-width="550px">
+								<v-dialog v-model="dialogEdit" max-width="550px">
 									<template v-slot:activator="{ on, attrs }">
 										<v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on"> 新增帳戶 </v-btn>
 									</template>
@@ -78,18 +108,22 @@
 
 											<v-card-actions class="pb-4">
 												<v-spacer></v-spacer>
-												<v-btn color="blue darken-1" text @click="close"> 取消 </v-btn>
+												<v-btn color="blue darken-1" text @click="closeDialog('dialogEdit')"> 取消 </v-btn>
 												<v-btn color="blue darken-1" text @click="editItemConfirm()" :disabled="invalid"> 儲存 </v-btn>
+												<v-btn color="warning darken-1" text v-if="!editedItem.isActive" @click="verifyItemConfirm()" :disabled="invalid">
+													審核
+												</v-btn>
 											</v-card-actions>
 										</v-card>
 									</validation-observer>
 								</v-dialog>
 								<v-dialog v-model="dialogDelete" max-width="550px">
 									<v-card>
-										<v-card-title class="text-h6">即將刪除此角色，是否繼續</v-card-title>
+										<v-card-title v-if="editedItem.isActive" class="text-h6">即將刪除此角色，是否繼續?</v-card-title>
+										<v-card-title v-else class="text-h6">即將刪除此審核請求，是否繼續?</v-card-title>
 										<v-card-actions>
 											<v-spacer></v-spacer>
-											<v-btn color="blue darken-1" text @click="closeDelete"> 取消 </v-btn>
+											<v-btn color="blue darken-1" text @click="closeDialog('dialogDelete')"> 取消 </v-btn>
 											<v-btn color="error darken-1" text @click="deleteItemConfirm()"> 刪除 </v-btn>
 											<v-spacer></v-spacer>
 										</v-card-actions>
@@ -101,19 +135,13 @@
 							<div v-for="(roleName, index) in item.roleNames" :key="index" class="py-1">{{ roleName }}</div>
 						</template>
 						<template v-slot:[`item.actions`]="{ item }">
-							<v-icon size="20" color="accent" class="mr-3" @click="prepareEditedItem(item)"> mdi-pencil </v-icon>
-							<v-icon size="20" color="error" @click="prepareDeletedItem(item)"> mdi-delete </v-icon>
+							<v-icon size="20" color="accent" class="mr-3" @click="prepareEditedItem({ item: item, dialogMode: 'dialogEdit' })">
+								mdi-pencil
+							</v-icon>
+							<v-icon size="20" color="error" @click="prepareEditedItem({ item: item, dialogMode: 'dialogDelete' })"> mdi-delete </v-icon>
 						</template>
 						<template v-slot:no-data>
-							<v-btn
-								color="primary"
-								@click="
-									getAllUsers();
-									getRoles();
-								"
-							>
-								Reset
-							</v-btn>
+							<v-btn color="primary" @click="getDataFromApi()"> Reset </v-btn>
 						</template>
 					</v-data-table>
 				</v-card>
@@ -134,8 +162,11 @@ export default {
 
 	data: () => ({
 		search: '',
-		dialog: false,
+		loadingFormData: false,
+		options: {},
+		dialogEdit: false,
 		dialogDelete: false,
+		customItemsPerPage: 5,
 		headers: [
 			{ text: '姓名', align: 'start', value: 'fullName' },
 			{ text: '帳戶名稱', value: 'userName' },
@@ -151,7 +182,8 @@ export default {
 			userName: '',
 			emailAddress: '',
 			phone: '',
-			roleNames: []
+			roleNames: [],
+			isActive: Boolean
 		},
 
 		defaultItem: {
@@ -160,12 +192,13 @@ export default {
 			userName: '',
 			emailAddress: '',
 			phone: '',
-			roleNames: []
+			roleNames: [],
+			isActive: Boolean
 		}
 	}),
 
 	computed: {
-		...mapGetters('user', ['allUsersList']),
+		...mapGetters('user', ['allUsersList', 'vetifiedUsersList', 'pendingUsersList']),
 		...mapGetters('roles', ['roleList']),
 
 		formTitle() {
@@ -174,33 +207,53 @@ export default {
 	},
 
 	watch: {
-		dialog(val) {
-			val || this.close();
+		dialogEdit(val) {
+			val || this.closeDialog('dialogEdit');
 		},
+
 		dialogDelete(val) {
-			val || this.closeDelete();
+			val || this.closeDialog('dialogDelete');
+		},
+
+		options: {
+			handler() {
+				this.getDataFromApi();
+			},
+			deep: true
 		}
 	},
 
 	created() {
-		this.getAllUsers();
-		this.getRoles();
+		// duplicate call created() & watch > options > handler
+		// this.getDataFromApi();
 	},
 
 	methods: {
-		...mapActions('user', ['getAllUsers', 'createUser', 'deleteUser', 'updateUser']),
+		...mapActions('user', ['getAllUsers', 'createUser', 'deleteUser', 'updateUser', 'getUsersByParams']),
 		...mapActions('roles', ['getRoles']),
 
-		prepareEditedItem(item) {
-			this.editedIndex = this.allUsersList.indexOf(item);
-			this.editedItem = Object.assign({}, item);
-			this.dialog = true;
+		getDataFromApi() {
+			this.getUsersByParams({ isActive: true });
+			this.getUsersByParams({ isActive: false });
+			this.getRoles();
 		},
 
-		prepareDeletedItem(item) {
-			this.editedIndex = this.allUsersList.indexOf(item);
+		prepareEditedItem(payload) {
+			const { item, dialogMode } = payload;
+			console.log('RoleManagement.vue prepareEditedItem item', item);
+			if (item.isActive) {
+				this.editedIndex = this.vetifiedUsersList.indexOf(item);
+				console.log('RoleManagement.vue prepareEditedItem vetifiedUsersList');
+			} else {
+				this.editedIndex = this.pendingUsersList.indexOf(item);
+				console.log('RoleManagement.vue prepareEditedItem pendingUsersList');
+			}
 			this.editedItem = Object.assign({}, item);
-			this.dialogDelete = true;
+			this[dialogMode] = true;
+
+			// this.editedIndex = this.allUsersList.indexOf(item);
+			// this.editedItem = Object.assign({}, item);
+			// this.dialog = true;
 		},
 
 		editItemConfirm() {
@@ -211,14 +264,12 @@ export default {
 				console.log('RoleManagement.vue editItemConfirm payload', payload);
 
 				this.createUser(payload).then(() => {
-					this.getAllUsers();
-					this.getRoles();
+					this.getDataFromApi();
 					this.close();
 				});
 			} else {
 				this.updateUser(this.editedItem).then(() => {
-					this.getAllUsers();
-					this.getRoles();
+					this.getDataFromApi();
 					this.close();
 				});
 			}
@@ -226,23 +277,42 @@ export default {
 
 		deleteItemConfirm() {
 			this.deleteUser(this.editedItem.id).then(() => {
-				this.getAllUsers();
-				this.getRoles();
+				this.getDataFromApi();
 				this.closeDelete();
 			});
 		},
 
+		verifyItemConfirm() {
+			if (!this.editedItem.isActive) {
+				this.editedItem.isActive = true;
+				this.updateUser(this.editedItem).then(() => {
+					this.getDataFromApi();
+					this.close();
+				});
+			} else {
+				console.error('This account has been verified');
+			}
+		},
+
 		close() {
 			this.resetFormValidate();
-			this.dialog = false;
+			this.dialogEdit = false;
 			this.$nextTick(() => {
 				this.editedItem = Object.assign({}, this.defaultItem);
 				this.editedIndex = -1;
 			});
 		},
 
-		closeDelete() {
-			this.dialogDelete = false;
+		// closeDelete() {
+		// 	this.dialogDelete = false;
+		// 	this.$nextTick(() => {
+		// 		this.editedItem = Object.assign({}, this.defaultItem);
+		// 		this.editedIndex = -1;
+		// 	});
+		// },
+
+		closeDialog(dialogMode) {
+			this[dialogMode] = false;
 			this.$nextTick(() => {
 				this.editedItem = Object.assign({}, this.defaultItem);
 				this.editedIndex = -1;

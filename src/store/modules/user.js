@@ -1,15 +1,14 @@
-import { login, getUser, AbpUserConfiguration, getUserAll, createUser, deleteUser, updateUser } from '@/api/user';
-// eslint-disable-next-line no-unused-vars
+import { login, getUser, AbpUserConfiguration, getUserAll, createUser, deleteUser, updateUser, getUsersByParams } from '@/api/user';
 import { setToken, removeToken, getToken, setCurrentUserId, removeCurrentUserId } from '@/utils/auth';
 import { resetRouter } from '@/router';
 
 const state = {
+	// User state
 	token: getToken(),
 	roles: [],
 	grantedPermissions: [],
 	user: '',
 	name: '',
-	allUsers: []
 	// avatar: '',
 	// status: '',
 	// code: '',
@@ -17,9 +16,16 @@ const state = {
 	// setting: {
 	// 	articlePlatform: []
 	// }
+
+	// Users state
+	allUsers: [],
+	vetifiedUsers: [],
+	pendingUsers: [],
+	userTotalCount: 0
 };
 
 const getters = {
+	// User getters
 	token: (state) => state.token,
 	roles: (state) => state.roles,
 	grantedPermissions: (state) => state.grantedPermissions,
@@ -30,7 +36,13 @@ const getters = {
 	// status: (state) => state.status,
 	// introduction: (state) => state.introduction,
 	setting: (state) => state.setting,
-	allUsersList: (state) => state.allUsers
+
+	// Users getters
+	allUsersList: (state) => state.allUsers,
+	// vetifiedUsersList: (state) => state.allUsers.filter((user) => user.isActive),
+	// pendingUsersList: (state) => state.allUsers.filter((user) => !user.isActive),
+	vetifiedUsersList: (state) => state.vetifiedUsers,
+	pendingUsersList: (state) => state.pendingUsers
 };
 
 const mutations = {
@@ -58,7 +70,20 @@ const mutations = {
 
 	SET_ALL_USERS: (state, allUsers) => {
 		state.allUsers = allUsers;
+	},
+
+	SET_USERS: (state, payload) => {
+		const { isActive, responseData } = payload;
+		if (isActive) {
+			state.vetifiedUsers = responseData;
+		} else {
+			state.pendingUsers = responseData;
+		}
 	}
+
+	// SET_USER_TOTAL_COUNT: (state, countNumber) => {
+	// 	state.userTotalCount = count
+	// }
 };
 
 const actions = {
@@ -112,7 +137,14 @@ const actions = {
 	getAllUsers: async ({ commit }) => {
 		const response = await getUserAll();
 		commit('SET_ALL_USERS', response.data.result.items);
-		console.log('vuex user.js getAllUsers response', response);
+	},
+
+	getUsersByParams: async ({ commit }, payload) => {
+		console.log('vuex user.js getUsersByParams payload', payload);
+		const response = await getUsersByParams(payload);
+		console.log('vuex user.js getUsersByParams response', response);
+		const { isActive } = payload;
+		commit('SET_USERS', { isActive: isActive, responseData: response.data.result.items });
 	},
 
 	createUser: async (context, payload) => {
