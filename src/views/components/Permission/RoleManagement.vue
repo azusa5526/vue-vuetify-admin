@@ -1,7 +1,7 @@
 <template>
 	<AppTopCenter>
 		<template v-slot:page>
-			<v-col>
+			<v-col class="pb-10">
 				<v-card v-if="pendingUsersList.length !== 0">
 					<v-card-title>
 						<div>待審核帳戶</div>
@@ -10,7 +10,9 @@
 					<v-data-table
 						:headers="headers"
 						:items="pendingUsersList"
-						:items-per-page="customItemsPerPage"
+						:items-per-page="pendingItemsPerPage"
+						:server-items-length="pendingUsersCount"
+						:options.sync="pendingTableOptions"
 						sort-by="userName"
 						class="elevation-1 mb-4"
 					>
@@ -36,7 +38,9 @@
 						:headers="headers"
 						:items="vetifiedUsersList"
 						:search="search"
-						:options.sync="options"
+						:server-items-length="verifiedUsersCount"
+						:options.sync="verifiedTableOptions"
+						:loading="loadingVerifiedTable"
 						sort-by="userName"
 						class="elevation-1"
 					>
@@ -162,11 +166,20 @@ export default {
 
 	data: () => ({
 		search: '',
-		loadingFormData: false,
-		options: {},
+		loadingVerifiedTable: false,
+
+		verifiedTableOptions: {},
+		pendingTableOptions: {},
+
+		verifiedTablePagedParams: {},
+		pendingTablePagedParams: {},
+
+		pendingItemsPerPage: 5,
+		verifiedItemsPerPage: 10,
+
 		dialogEdit: false,
 		dialogDelete: false,
-		customItemsPerPage: 5,
+
 		headers: [
 			{ text: '姓名', align: 'start', value: 'fullName' },
 			{ text: '帳戶名稱', value: 'userName' },
@@ -175,6 +188,7 @@ export default {
 			{ text: '身分類別', value: 'roleNames' },
 			{ text: '編輯動作', value: 'actions', sortable: false }
 		],
+
 		editedIndex: -1,
 		editedItem: {
 			surname: '',
@@ -198,7 +212,7 @@ export default {
 	}),
 
 	computed: {
-		...mapGetters('user', ['allUsersList', 'vetifiedUsersList', 'pendingUsersList']),
+		...mapGetters('user', ['vetifiedUsersList', 'pendingUsersList', 'verifiedUsersCount', 'pendingUsersCount']),
 		...mapGetters('roles', ['roleList']),
 
 		formTitle() {
@@ -215,45 +229,67 @@ export default {
 			val || this.closeDialog('dialogDelete');
 		},
 
-		options: {
+		verifiedTableOptions: {
 			handler() {
-				this.getDataFromApi();
+				this.loadingVerifiedTable = true;
+				this.verifiedTablePagedParams = {
+					MaxResultCount: this.verifiedTableOptions.itemsPerPage !== -1 ? this.verifiedTableOptions.itemsPerPage : this.verifiedUsersCount,
+					SkipCount: this.verifiedTableOptions.itemsPerPage * this.verifiedTableOptions.page - this.verifiedTableOptions.itemsPerPage
+				};
+				this.getVetifiedUsers(this.verifiedTablePagedParams);
+			},
+			deep: true
+		},
+
+		pendingTableOptions: {
+			handler() {
+				this.pendingTablePagedParams = {
+					MaxResultCount: this.pendingTableOptions.itemsPerPage !== -1 ? this.pendingTableOptions.itemsPerPage : this.pendingUsersCount,
+					SkipCount: this.pendingTableOptions.itemsPerPage * this.pendingTableOptions.page - this.pendingTableOptions.itemsPerPage
+				};
+				this.getPendingUsers(this.pendingTablePagedParams);
 			},
 			deep: true
 		}
 	},
 
 	created() {
-		// duplicate call created() & watch > options > handler
-		// this.getDataFromApi();
+		this.getDataFromApi();
 	},
 
 	methods: {
-		...mapActions('user', ['getAllUsers', 'createUser', 'deleteUser', 'updateUser', 'getUsersByParams']),
+		...mapActions('user', ['getUsersByParams', 'createUser', 'deleteUser', 'updateUser']),
 		...mapActions('roles', ['getRoles']),
 
 		getDataFromApi() {
-			this.getUsersByParams({ isActive: true });
-			this.getUsersByParams({ isActive: false });
+			this.loadingVerifiedTable = true;
+			this.getVetifiedUsers(this.verifiedTablePagedParams);
+			this.getPendingUsers(this.pendingTablePagedParams);
 			this.getRoles();
+		},
+
+		getVetifiedUsers(params) {
+			console.log('RoleManagement.vue getVetifiedUsers this.verifiedTableOptions', this.verifiedTableOptions);
+			this.getUsersByParams({ isActive: true, ...params }).then(() => {
+				this.loadingVerifiedTable = false;
+			});
+		},
+
+		getPendingUsers(params) {
+			this.getUsersByParams({ isActive: false, ...params });
 		},
 
 		prepareEditedItem(payload) {
 			const { item, dialogMode } = payload;
-			console.log('RoleManagement.vue prepareEditedItem item', item);
+
 			if (item.isActive) {
 				this.editedIndex = this.vetifiedUsersList.indexOf(item);
-				console.log('RoleManagement.vue prepareEditedItem vetifiedUsersList');
 			} else {
 				this.editedIndex = this.pendingUsersList.indexOf(item);
-				console.log('RoleManagement.vue prepareEditedItem pendingUsersList');
 			}
+
 			this.editedItem = Object.assign({}, item);
 			this[dialogMode] = true;
-
-			// this.editedIndex = this.allUsersList.indexOf(item);
-			// this.editedItem = Object.assign({}, item);
-			// this.dialog = true;
 		},
 
 		editItemConfirm() {
@@ -261,16 +297,15 @@ export default {
 				const payload = Object.assign({}, this.editedItem);
 				payload.isActive = true;
 				payload.password = this.editedItem.userName;
-				console.log('RoleManagement.vue editItemConfirm payload', payload);
 
 				this.createUser(payload).then(() => {
 					this.getDataFromApi();
-					this.close();
+					this.closeDialog('dialogEdit');
 				});
 			} else {
 				this.updateUser(this.editedItem).then(() => {
 					this.getDataFromApi();
-					this.close();
+					this.closeDialog('dialogEdit');
 				});
 			}
 		},
@@ -278,7 +313,7 @@ export default {
 		deleteItemConfirm() {
 			this.deleteUser(this.editedItem.id).then(() => {
 				this.getDataFromApi();
-				this.closeDelete();
+				this.closeDialog('dialogDelete');
 			});
 		},
 
@@ -287,35 +322,19 @@ export default {
 				this.editedItem.isActive = true;
 				this.updateUser(this.editedItem).then(() => {
 					this.getDataFromApi();
-					this.close();
+					this.closeDialog('dialogEdit');
 				});
 			} else {
 				console.error('This account has been verified');
 			}
 		},
 
-		close() {
-			this.resetFormValidate();
-			this.dialogEdit = false;
-			this.$nextTick(() => {
-				this.editedItem = Object.assign({}, this.defaultItem);
-				this.editedIndex = -1;
-			});
-		},
-
-		// closeDelete() {
-		// 	this.dialogDelete = false;
-		// 	this.$nextTick(() => {
-		// 		this.editedItem = Object.assign({}, this.defaultItem);
-		// 		this.editedIndex = -1;
-		// 	});
-		// },
-
 		closeDialog(dialogMode) {
 			this[dialogMode] = false;
 			this.$nextTick(() => {
 				this.editedItem = Object.assign({}, this.defaultItem);
 				this.editedIndex = -1;
+				if (dialogMode === 'dialogEdit') this.resetFormValidate();
 			});
 		},
 

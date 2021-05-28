@@ -57,6 +57,7 @@ export function getUserAll(params) {
 	});
 }
 
+// same as getUserAll(params)
 export function getUsersByParams(params) {
 	return request({
 		url: '/api/services/app/User/GetAll',

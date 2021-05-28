@@ -21,7 +21,8 @@ const state = {
 	allUsers: [],
 	vetifiedUsers: [],
 	pendingUsers: [],
-	userTotalCount: 0
+	verifiedUsersCount: 0,
+	pendingUsersCount: 0
 };
 
 const getters = {
@@ -39,10 +40,10 @@ const getters = {
 
 	// Users getters
 	allUsersList: (state) => state.allUsers,
-	// vetifiedUsersList: (state) => state.allUsers.filter((user) => user.isActive),
-	// pendingUsersList: (state) => state.allUsers.filter((user) => !user.isActive),
 	vetifiedUsersList: (state) => state.vetifiedUsers,
-	pendingUsersList: (state) => state.pendingUsers
+	pendingUsersList: (state) => state.pendingUsers,
+	verifiedUsersCount: (state) => state.verifiedUsersCount,
+	pendingUsersCount: (state) => state.pendingUsersCount
 };
 
 const mutations = {
@@ -79,11 +80,16 @@ const mutations = {
 		} else {
 			state.pendingUsers = responseData;
 		}
-	}
+	},
 
-	// SET_USER_TOTAL_COUNT: (state, countNumber) => {
-	// 	state.userTotalCount = count
-	// }
+	SET_USERS_COUNT: (state, payload) => {
+		const { isActive, responseData } = payload;
+		if (isActive) {
+			state.verifiedUsersCount = responseData;
+		} else {
+			state.pendingUsersCount = responseData;
+		}
+	}
 };
 
 const actions = {
@@ -112,13 +118,8 @@ const actions = {
 	},
 
 	GetUserInfo: async ({ commit, getters }, payload) => {
-		// console.log('vuex user.js GetUserInfo getters', getters);
-		// console.log('vuex user.js GetUserInfo payload', payload);
 		const getPermissionsResponse = await AbpUserConfiguration(getters.token);
 		const getUserResponse = await getUser(payload);
-
-		// console.log('vuex user.js GetUserInfo getPermissionsResponse', getPermissionsResponse);
-		// console.log('vuex user.js GetUserInfo getUserResponse', getUserResponse);
 
 		getUserResponse.data.result.grantedPermissions = Object.keys(getPermissionsResponse.data.result.auth.grantedPermissions);
 		getUserResponse.data.result.allPermissions = Object.keys(getPermissionsResponse.data.result.auth.allPermissions);
@@ -140,19 +141,22 @@ const actions = {
 	},
 
 	getUsersByParams: async ({ commit }, payload) => {
-		console.log('vuex user.js getUsersByParams payload', payload);
+		console.log('vuex user.js getUserByParams payload', payload);
 		const response = await getUsersByParams(payload);
-		console.log('vuex user.js getUsersByParams response', response);
 		const { isActive } = payload;
 		commit('SET_USERS', { isActive: isActive, responseData: response.data.result.items });
+		commit('SET_USERS_COUNT', { isActive: isActive, responseData: response.data.result.totalCount });
 	},
 
 	createUser: async (context, payload) => {
-		try {
-			await createUser(payload);
-		} catch (error) {
-			throw new Error('vuex user.js createUser error', error);
-		}
+		console.log('vuex user.js createUser payload', payload);
+		// try {
+		// 	await createUser(payload);
+		// } catch (error) {
+		// 	console.log(error);
+		// 	throw new Error('vuex user.js createUser error', error);
+		// }
+		await createUser(payload);
 	},
 
 	deleteUser: async (context, id) => {
@@ -165,7 +169,7 @@ const actions = {
 	},
 
 	updateUser: async (context, payload) => {
-		console.log('vuex user.js updateUser', payload);
+		console.log('vuex user.js updateUser payload', payload);
 		try {
 			await updateUser(payload);
 		} catch (error) {
