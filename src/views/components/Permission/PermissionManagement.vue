@@ -6,10 +6,24 @@
 					<v-card-title>
 						<div>權限管理</div>
 						<v-spacer></v-spacer>
-						<v-text-field class="pt-0 mt-0" v-model="search" append-icon="mdi-magnify" label="搜尋" single-line hide-details></v-text-field>
+						<v-text-field
+							class="pt-0 mt-0"
+							v-model.lazy="searchKeyword"
+							append-icon="mdi-magnify"
+							label="搜尋"
+							single-line
+							hide-details
+						></v-text-field>
 					</v-card-title>
 
-					<v-data-table :headers="headers" :items="roleList" :search="search" sort-by="name" class="elevation-1">
+					<v-data-table
+						:headers="headers"
+						:items="roleList"
+						:server-items-length="rolesCount"
+						:options.sync="tableOptions"
+						:loading="loadingTable"
+						class="elevation-1"
+					>
 						<template v-slot:top>
 							<v-toolbar flat>
 								<v-spacer></v-spacer>
@@ -115,14 +129,24 @@ export default {
 		AppTopCenter
 	},
 	data: () => ({
-		search: '',
+		loadingTable: false,
+		tableOptions: {
+			MaxResultCount: 0,
+			SkipCount: 0,
+			Keyword: ''
+		},
+		tablePagedParams: {},
+		itemsPerPage: 10,
+
+		searchKeyword: '',
 		dialogEdit: false,
 		dialogDelete: false,
 		headers: [
 			{
 				text: '權限-角色名稱',
 				align: 'start',
-				value: 'name'
+				value: 'name',
+				sortable: false
 			},
 			{ text: '顯示名稱', value: 'displayName', sortable: false },
 			{ text: '描述', value: 'description', sortable: false },
@@ -146,7 +170,7 @@ export default {
 	}),
 
 	computed: {
-		...mapGetters('roles', ['roleList']),
+		...mapGetters('roles', ['roleList', 'rolesCount']),
 		...mapGetters('user', ['allPermissions']),
 
 		formTitle() {
@@ -161,15 +185,70 @@ export default {
 
 		dialogDelete(val) {
 			val || this.closeDialog('dialogDelete');
+		},
+
+		tableOptions: {
+			handler() {
+				this.loadingTable = true;
+				// this.tablePagedParams = {
+				// 	MaxResultCount: this.tableOptions.itemsPerPage !== -1 ? this.tableOptions.itemsPerPage : this.rolesCount,
+				// 	SkipCount: this.tableOptions.itemsPerPage * this.tableOptions.page - this.tableOptions.itemsPerPage
+				// };
+				this.tablePagedParams.MaxResultCount = this.tableOptions.itemsPerPage !== -1 ? this.tableOptions.itemsPerPage : this.rolesCount;
+				this.tablePagedParams.SkipCount = this.tableOptions.itemsPerPage * this.tableOptions.page - this.tableOptions.itemsPerPage;
+
+				console.log('PermissionManagement.vue tableOptions tablePagedParams', this.tablePagedParams);
+				this.getRolesByParams(this.tablePagedParams).then(() => {
+					this.loadingTable = false;
+				});
+			},
+			deep: true
+		},
+
+		// Immediately search
+		searchKeyword: {
+			handler() {
+				// this.loadingTable = true;
+				// this.tablePagedParams.Keyword = this.searchKeyword;
+				// this.getRolesByParams(this.tablePagedParams).then(() => {
+				// 	this.loadingTable = false;
+				// });
+				this.searchTimeOut();
+			}
 		}
 	},
 
 	created() {
-		this.getRoles();
+		this.getRolesByParams().then(() => {
+			this.loadingTable = false;
+		});
 	},
 
 	methods: {
-		...mapActions('roles', ['getRoles', 'addRole', 'updateRole', 'deleteRole']),
+		...mapActions('roles', ['getRoles', 'getRolesByParams', 'addRole', 'updateRole', 'deleteRole']),
+
+		// Blur search
+		// searchDataByKeyword() {
+		// 	this.loadingTable = true;
+		// 	this.tablePagedParams.Keyword = this.searchKeyword;
+		// 	this.getRolesByParams(this.tablePagedParams).then(() => {
+		// 		this.loadingTable = false;
+		// 	});
+		// },
+
+		searchTimeOut() {
+			if (this.timer) {
+				clearTimeout(this.timer);
+				this.timer = null;
+			}
+			this.timer = setTimeout(() => {
+				this.loadingTable = true;
+				this.tablePagedParams.Keyword = this.searchKeyword;
+				this.getRolesByParams(this.tablePagedParams).then(() => {
+					this.loadingTable = false;
+				});
+			}, 800);
+		},
 
 		prepareEditedItem(payload) {
 			const { item, dialogMode } = payload;
@@ -183,7 +262,9 @@ export default {
 			if (this.editedIndex === -1) {
 				this.addRole(this.editedItem).then((result) => {
 					if (result) {
-						this.getRoles();
+						this.getRolesByParams(this.tablePagedParams).then(() => {
+							this.loadingTable = false;
+						});
 						this.closeDialog('dialogEdit');
 					} else {
 						console.error('PermissionManagement.vue editItemConfirm addRoles Error', result);
@@ -193,7 +274,9 @@ export default {
 			} else {
 				this.updateRole(this.editedItem).then((result) => {
 					if (result) {
-						this.getRoles();
+						this.getRolesByParams(this.tablePagedParams).then(() => {
+							this.loadingTable = false;
+						});
 						this.closeDialog('dialogEdit');
 					} else {
 						console.error('PermissionManagement.vue editItemConfirm updateRole Error', result);
@@ -206,7 +289,9 @@ export default {
 		deleteItemConfirm() {
 			this.deleteRole(this.editedItem).then((result) => {
 				if (result) {
-					this.getRoles();
+					this.getRolesByParams(this.tablePagedParams).then(() => {
+						this.loadingTable = false;
+					});
 					this.closeDialog('dialogDelete');
 				} else {
 					console.error('PermissionManagement.vue deleteItemConfirm deleteRole Error', result);

@@ -1,16 +1,22 @@
 import { getRoles, getRole, addRole, updateRole, deleteRole } from '@/api/roles';
 
 const state = {
-	roles: []
+	roles: [],
+	rolesCount: 0
 };
 
 const getters = {
-	roleList: (state) => state.roles
+	roleList: (state) => state.roles,
+	rolesCount: (state) => state.rolesCount
 };
 
 const mutations = {
 	SET_ROLES: (state, roles) => {
 		state.roles = roles;
+	},
+
+	SET_ROLES_COUNT: (state, payload) => {
+		state.rolesCount = payload;
 	}
 };
 
@@ -20,6 +26,22 @@ const actions = {
 			getRoles()
 				.then((response) => {
 					commit('SET_ROLES', response.data.result.items);
+					resolve(response);
+				})
+				.catch((error) => {
+					reject(error);
+				});
+		});
+	},
+
+	getRolesByParams({ commit }, payload) {
+		console.log('vuex user.js getRolesByParams payload', payload);
+		return new Promise((resolve, reject) => {
+			getRoles(payload)
+				.then((response) => {
+					console.log('vuex user.js getRolesByParams response.data.result.items', response.data.result.items);
+					commit('SET_ROLES', response.data.result.items);
+					commit('SET_ROLES_COUNT', response.data.result.totalCount);
 					resolve(response);
 				})
 				.catch((error) => {
