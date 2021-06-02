@@ -32,12 +32,18 @@
 					<v-card-title>
 						<div>帳戶管理</div>
 						<v-spacer></v-spacer>
-						<v-text-field class="pt-0 mt-0" v-model="search" append-icon="mdi-magnify" label="搜尋" single-line hide-details></v-text-field>
+						<v-text-field
+							class="pt-0 mt-0"
+							v-model.lazy="searchKeyword"
+							append-icon="mdi-magnify"
+							label="搜尋姓名 / 帳戶名稱 / 電子信箱"
+							single-line
+							hide-details
+						></v-text-field>
 					</v-card-title>
 					<v-data-table
 						:headers="headers"
 						:items="vetifiedUsersList"
-						:search="search"
 						:server-items-length="verifiedUsersCount"
 						:options.sync="verifiedTableOptions"
 						:loading="loadingVerifiedTable"
@@ -165,7 +171,6 @@ export default {
 	},
 
 	data: () => ({
-		search: '',
 		loadingVerifiedTable: false,
 
 		verifiedTableOptions: {},
@@ -177,15 +182,17 @@ export default {
 		pendingItemsPerPage: 5,
 		verifiedItemsPerPage: 10,
 
+		searchKeyword: '',
+
 		dialogEdit: false,
 		dialogDelete: false,
 
 		headers: [
-			{ text: '姓名', align: 'start', value: 'fullName' },
-			{ text: '帳戶名稱', value: 'userName' },
+			{ text: '姓名', align: 'start', value: 'fullName', sortable: false },
+			{ text: '帳戶名稱', value: 'userName', sortable: false },
 			{ text: '電子信箱', value: 'emailAddress', sortable: false },
-			{ text: '聯絡電話', value: 'phone' },
-			{ text: '身分類別', value: 'roleNames' },
+			{ text: '聯絡電話', value: 'phone', sortable: false },
+			{ text: '身分類別', value: 'roleNames', sortable: false },
 			{ text: '編輯動作', value: 'actions', sortable: false }
 		],
 
@@ -232,10 +239,12 @@ export default {
 		verifiedTableOptions: {
 			handler() {
 				this.loadingVerifiedTable = true;
-				this.verifiedTablePagedParams = {
-					MaxResultCount: this.verifiedTableOptions.itemsPerPage !== -1 ? this.verifiedTableOptions.itemsPerPage : this.verifiedUsersCount,
-					SkipCount: this.verifiedTableOptions.itemsPerPage * this.verifiedTableOptions.page - this.verifiedTableOptions.itemsPerPage
-				};
+
+				this.verifiedTablePagedParams.MaxResultCount =
+					this.verifiedTableOptions.itemsPerPage !== -1 ? this.verifiedTableOptions.itemsPerPage : this.verifiedUsersCount;
+				this.verifiedTablePagedParams.SkipCount =
+					this.verifiedTableOptions.itemsPerPage * this.verifiedTableOptions.page - this.verifiedTableOptions.itemsPerPage;
+
 				this.getVetifiedUsers(this.verifiedTablePagedParams);
 			},
 			deep: true
@@ -243,13 +252,22 @@ export default {
 
 		pendingTableOptions: {
 			handler() {
-				this.pendingTablePagedParams = {
-					MaxResultCount: this.pendingTableOptions.itemsPerPage !== -1 ? this.pendingTableOptions.itemsPerPage : this.pendingUsersCount,
-					SkipCount: this.pendingTableOptions.itemsPerPage * this.pendingTableOptions.page - this.pendingTableOptions.itemsPerPage
-				};
+				this.pendingTablePagedParams.MaxResultCount =
+					this.pendingTableOptions.itemsPerPage !== -1 ? this.pendingTableOptions.itemsPerPage : this.pendingUsersCount;
+				this.pendingTablePagedParams.SkipCount =
+					this.pendingTableOptions.itemsPerPage * this.pendingTableOptions.page - this.pendingTableOptions.itemsPerPage;
+
 				this.getPendingUsers(this.pendingTablePagedParams);
 			},
 			deep: true
+		},
+
+		// Immediately search
+		searchKeyword: {
+			handler() {
+				// Use timeout (debounce)
+				this.searchTimeOut();
+			}
 		}
 	},
 
@@ -277,6 +295,18 @@ export default {
 
 		getPendingUsers(params) {
 			this.getUsersByParams({ isActive: false, ...params });
+		},
+
+		searchTimeOut() {
+			if (this.timer) {
+				clearTimeout(this.timer);
+				this.timer = null;
+			}
+			this.timer = setTimeout(() => {
+				this.loadingVerifiedTable = true;
+				this.verifiedTablePagedParams.Keyword = this.searchKeyword;
+				this.getVetifiedUsers(this.verifiedTablePagedParams);
+			}, 800);
 		},
 
 		prepareEditedItem(payload) {

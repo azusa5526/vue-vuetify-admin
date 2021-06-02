@@ -10,7 +10,7 @@
 							class="pt-0 mt-0"
 							v-model.lazy="searchKeyword"
 							append-icon="mdi-magnify"
-							label="搜尋"
+							label="搜尋權限-角色名稱 / 顯示名稱 / 描述"
 							single-line
 							hide-details
 						></v-text-field>
@@ -137,10 +137,11 @@ export default {
 		},
 		tablePagedParams: {},
 		itemsPerPage: 10,
-
 		searchKeyword: '',
+
 		dialogEdit: false,
 		dialogDelete: false,
+
 		headers: [
 			{
 				text: '權限-角色名稱',
@@ -153,6 +154,7 @@ export default {
 
 			{ text: '編輯動作', value: 'actions', sortable: false }
 		],
+
 		editedIndex: -1,
 		editedItem: {
 			name: '',
@@ -161,6 +163,7 @@ export default {
 			grantedPermissions: [],
 			normalizedName: ''
 		},
+
 		defaultItem: {
 			name: '',
 			displayName: '',
@@ -208,11 +211,7 @@ export default {
 		// Immediately search
 		searchKeyword: {
 			handler() {
-				// this.loadingTable = true;
-				// this.tablePagedParams.Keyword = this.searchKeyword;
-				// this.getRolesByParams(this.tablePagedParams).then(() => {
-				// 	this.loadingTable = false;
-				// });
+				// Use timeout (debounce)
 				this.searchTimeOut();
 			}
 		}
