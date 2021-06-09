@@ -39,20 +39,24 @@ instance.interceptors.response.use(
 		return res;
 	},
 	(error) => {
-		if (error.response) {
-			switch (error.response.status) {
-				case 404:
-					console.log('Request.js error. Code 404, page not found.');
-					// go to 404 page
-					break;
-				case 500:
-					console.log('Request.js error. Code 500, internal server error.');
-					// go to 500 page
-					break;
-				default:
-					console.log('Request.js error.', error.message);
-			}
-		}
+		console.log(error.response.data);
+		return Promise.reject(error.response);
+
+		// if (error.response) {
+		// 	console.log('utils.js request error.response', error.response);
+		// 	switch (error.response.status) {
+		// 		case 404:
+		// 			console.log('Request.js error. Code 404, page not found.');
+		// 			// go to 404 page
+		// 			break;
+		// 		case 500:
+		// 			console.log('Request.js error. Code 500, internal server error.');
+		// 			// go to 500 page
+		// 			break;
+		// 		default:
+		// 			console.log('Request.js error.', error.message);
+		// 	}
+		// }
 	}
 );
 

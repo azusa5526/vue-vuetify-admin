@@ -29,6 +29,7 @@ export default {
 		signIn: 'Sing in',
 		signUp: 'Sing up',
 		email: 'Email',
+		account: 'Account',
 		password: 'Password',
 		confirm: 'Confirm'
 	},

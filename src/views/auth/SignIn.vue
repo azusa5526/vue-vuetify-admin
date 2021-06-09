@@ -13,7 +13,7 @@
 								v-model="model.username"
 								append-icon="mdi-account"
 								name="email"
-								:label="$t('login.email')"
+								:label="$t('login.account')"
 								type="email"
 								required
 								autocomplete="username"
@@ -71,10 +71,15 @@ export default {
 	methods: {
 		async login() {
 			this.loading = true;
-			await this.$store.dispatch('user/Login', {
-				username: this.model.username,
-				password: this.model.password
-			});
+			await this.$store
+				.dispatch('user/Login', {
+					username: this.model.username,
+					password: this.model.password
+				})
+				.catch((error) => {
+					console.error('SignIn.vue login error', error);
+					this.loading = false;
+				});
 			this.loading = false;
 			await this.$router.push(this.$route.query.redirect || '/');
 		}

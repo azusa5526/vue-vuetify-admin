@@ -100,9 +100,10 @@ const actions = {
 			userNameOrEmailAddress: payload.username.trim(),
 			password: payload.password,
 			rememberClient: true
+		}).catch((error) => {
+			console.error('vuex user.js login error', error);
+			dispatch('alert/updateMessage', { message: '登入失敗', status: 'error' }, { root: true });
 		});
-
-		console.log('vuex user.js login response', response);
 
 		// Store token in Cookie
 		await setToken(response.data.result.accessToken);

@@ -7,6 +7,7 @@
 
 // Override Globals Variables
 $btn-border-radius: 0px;
+$alert-border-radius: 0px;
 $data-table-regular-header-font-size: map-deep-get($headings, 'subtitle-1', 'size') !default;
 
 // @import '~vuetify/src/styles/main.sass';

@@ -29,6 +29,7 @@ export default {
 		signIn: '登入',
 		signUp: '註冊',
 		email: 'Email',
+		account: '帳號',
 		password: '密碼',
 		confirm: '確認'
 	},
